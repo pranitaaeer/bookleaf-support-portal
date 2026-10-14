@@ -1,0 +1,508 @@
+
+@use "./variables" as *;
+
+.portal-page {
+  color: $text-primary;
+  padding: 28px;
+  min-width: 0;
+
+  .page-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 24px;
+
+    h1 {
+      font-size: clamp(24px, 3vw, 32px);
+      margin: 0 0 8px;
+    }
+
+    p {
+      color: $text-secondary;
+      margin: 0;
+    }
+  }
+
+  .panel {
+    background: $bg-card;
+    border: 1px solid $border;
+    border-radius: $radius-md;
+    padding: 22px;
+    margin-bottom: 20px;
+    min-width: 0;
+
+    h2 {
+      font-size: 18px;
+      margin: 0 0 18px;
+    }
+  }
+
+  .form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+  }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0;
+
+    &.full-width {
+      grid-column: 1 / -1;
+    }
+
+    label {
+      color: $text-secondary;
+      font-size: 13px;
+    }
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+      box-sizing: border-box;
+      background: $bg-secondary;
+      color: $text-primary;
+      border: 1px solid $border;
+      border-radius: $radius-sm;
+      padding: 12px 13px;
+      font: inherit;
+      outline: none;
+
+      &:focus {
+        border-color: $accent;
+      }
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 120px;
+    }
+  }
+
+  .primary-btn,
+  .secondary-btn {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    padding: 11px 16px;
+    border-radius: $radius-sm;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    border: 1px solid transparent;
+    font: inherit;
+  }
+
+  .primary-btn {
+    background: $accent;
+    color: #0d1710;
+    border-color: $accent;
+
+    &:hover {
+      background: #62e9a1;
+    }
+  }
+
+  .secondary-btn {
+    background: $bg-hover;
+    color: $text-primary;
+    border-color: $border;
+  }
+
+  .table-wrap {
+    width: 100%;
+    overflow-x: auto;
+  }
+
+  .portal-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 650px;
+
+    th,
+    td {
+      padding: 15px 12px;
+      border-bottom: 1px solid $border;
+      text-align: left;
+      white-space: nowrap;
+    }
+
+    th {
+      color: $text-secondary;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    td {
+      font-size: 14px;
+    }
+
+    tr:last-child td {
+      border-bottom: 0;
+    }
+
+    a {
+      color: $accent;
+      text-decoration: none;
+    }
+  }
+
+  .status-pill {
+    display: inline-block;
+    padding: 5px 9px;
+    border-radius: 30px;
+    background: rgba(67, 217, 139, 0.12);
+    color: $accent;
+    font-size: 12px;
+  }
+
+  .muted {
+    color: $text-secondary;
+  }
+
+  .ticket-list {
+    display: grid;
+    gap: 12px;
+  }
+
+  .ticket-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 14px;
+    padding: 16px;
+    background: $bg-secondary;
+    border: 1px solid $border;
+    border-radius: $radius-sm;
+
+    h3 {
+      font-size: 15px;
+      margin: 0 0 8px;
+    }
+
+    p {
+      margin: 0;
+      color: $text-secondary;
+      font-size: 13px;
+    }
+  }
+
+  .message {
+    padding: 16px;
+    border-radius: $radius-sm;
+    background: $bg-secondary;
+    border: 1px solid $border;
+    margin-bottom: 12px;
+
+    p {
+      line-height: 1.6;
+      margin-bottom: 0;
+    }
+  }
+
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px;
+    margin-bottom: 22px;
+  }
+
+  .stat-card {
+    background: $bg-card;
+    border: 1px solid $border;
+    border-radius: $radius-md;
+    padding: 20px;
+
+    span {
+      display: block;
+      color: $text-secondary;
+      font-size: 13px;
+      margin-bottom: 12px;
+    }
+
+    strong {
+      font-size: 25px;
+    }
+  }
+
+  .toolbar {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 18px;
+
+    input,
+    select {
+      background: $bg-secondary;
+      color: $text-primary;
+      border: 1px solid $border;
+      border-radius: $radius-sm;
+      padding: 11px 12px;
+    }
+  }
+  
+/* Admin dashboard progress cards */
+
+.admin-stats {
+  align-items: stretch;
+}
+
+.admin-stat-card {
+  min-width: 0;
+  padding: 22px;
+  overflow: hidden;
+  transition: transform 180ms ease, border-color 180ms ease;
+}
+
+.admin-stat-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(67, 217, 139, 0.35);
+}
+
+.admin-stat-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  color: $text-secondary;
+  font-size: 13px;
+}
+
+.admin-stat-icon {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
+  border-radius: 12px;
+  color: $accent;
+  background: rgba(67, 217, 139, 0.12);
+}
+
+.admin-stat-icon.blue {
+  color: $info;
+  background: rgba(125, 184, 255, 0.12);
+}
+
+.admin-stat-icon.red {
+  color: $danger;
+  background: rgba(255, 119, 119, 0.12);
+}
+
+.admin-stat-icon.purple {
+  color: #bd9cff;
+  background: rgba(189, 156, 255, 0.12);
+}
+
+.admin-stat-main {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 18px 0;
+}
+
+.admin-stat-main strong {
+  display: block;
+  color: $text-primary;
+  font-size: clamp(27px, 2.4vw, 34px);
+  line-height: 1.15;
+}
+
+.admin-stat-main p {
+  margin: 7px 0 0;
+  color: $text-secondary;
+  font-size: 12px;
+}
+
+.progress-ring {
+  --progress: 0%;
+  --ring-color: #43d98b;
+
+  display: grid;
+  place-items: center;
+  position: relative;
+  width: 66px;
+  height: 66px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: conic-gradient(
+    var(--ring-color) var(--progress),
+    #303a33 0
+  );
+}
+
+.progress-ring::before {
+  content: "";
+  position: absolute;
+  inset: 6px;
+  border-radius: 50%;
+  background: $bg-card;
+}
+
+.progress-ring span {
+  position: relative;
+  z-index: 1;
+  color: $text-primary;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.blue-ring {
+  --ring-color: #7db8ff;
+}
+
+.red-ring {
+  --ring-color: #ff7777;
+}
+
+.purple-ring {
+  --ring-color: #bd9cff;
+}
+
+.admin-progress-track {
+  height: 5px;
+  overflow: hidden;
+  border-radius: 99px;
+  background: #303a33;
+}
+
+.admin-progress-track span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: $accent;
+}
+
+.admin-progress-track .blue-bar {
+  background: #7db8ff;
+}
+
+.admin-progress-track .red-bar {
+  background: #ff7777;
+}
+
+.admin-progress-track .purple-bar {
+  background: #bd9cff;
+}
+
+.admin-stat-card > small {
+  display: block;
+  margin-top: 10px;
+  color: $text-muted;
+  font-size: 11px;
+}
+
+@media (max-width: 600px) {
+  .admin-stat-card {
+    padding: 17px;
+  }
+
+  .progress-ring {
+    width: 58px;
+    height: 58px;
+  }
+}
+
+}
+
+/* Login and registration: full-screen centering */
+.auth-page {
+  min-height: 100vh;
+  min-height: 100dvh;
+  width: 100%;
+  box-sizing: border-box;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  padding: 24px;
+  background: $bg-primary;
+  margin: 0;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 430px;
+  box-sizing: border-box;
+  margin: auto;
+  padding: 32px;
+
+  border-radius: $radius-lg;
+  background: $bg-card;
+  border: 1px solid $border;
+
+  .brand {
+    color: $accent;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  h1 {
+    margin: 22px 0 8px;
+    font-size: 28px;
+  }
+
+  > p {
+    color: $text-secondary;
+    line-height: 1.6;
+    margin-bottom: 24px;
+  }
+
+  form {
+    display: grid;
+    gap: 18px;
+  }
+
+  .auth-footer {
+    margin: 22px 0 0;
+    text-align: center;
+    font-size: 14px;
+
+    a {
+      color: $accent;
+    }
+  }
+}
+
+@media (max-width: 900px) {
+  .portal-page {
+    .stat-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+}
+
+@media (max-width: 600px) {
+  .portal-page {
+    padding: 18px;
+
+    .form-grid,
+    .stat-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .panel {
+      padding: 16px;
+    }
+  }
+
+  .auth-page {
+    padding: 16px;
+  }
+
+  .auth-card {
+    padding: 24px;
+  }
+}
