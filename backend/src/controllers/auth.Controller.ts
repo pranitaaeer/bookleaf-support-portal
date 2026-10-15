@@ -95,7 +95,6 @@ export async function registerAuthor(req: Request, res: Response) {
   }
 }
 
-
 // POST /api/auth/login
 export async function login(req: Request, res: Response) {
   try {
@@ -197,3 +196,5 @@ export async function login(req: Request, res: Response) {
     });
   }
 }
+
+

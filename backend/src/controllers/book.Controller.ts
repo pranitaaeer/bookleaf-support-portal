@@ -1,11 +1,11 @@
 
 import type { Request, Response } from "express";
 import Book from "../models/Book.model.js";
+import mongoose from "mongoose";
 
 // GET /api/books/my-books
 export async function getMyBooks(req: Request, res: Response) {
   try {
-    // req.user authentication middleware se aayega.
     const authorId = req.user?.id;
 
     if (!authorId) {
@@ -40,6 +40,7 @@ export async function getMyBooks(req: Request, res: Response) {
 // GET /api/books/:bookId
 export async function getBookById(req: Request, res: Response) {
   try {
+    // const authorId = req.user?.id;
     const authorId = req.user?.id;
     const { bookId } = req.params;
 
@@ -50,10 +51,18 @@ export async function getBookById(req: Request, res: Response) {
       });
     }
 
-    const book = await Book.findOne({
-      _id: bookId,
-      author: authorId,
-    }).lean();
+   if (typeof bookId !== "string" || !bookId.trim()) {
+  return res.status(400).json({
+    success: false,
+    message: "A valid book ID is required.",
+  });
+}
+
+    const query = mongoose.isValidObjectId(bookId)
+      ? { _id: bookId, author: authorId }
+      : { bookId, author: authorId };
+
+    const book = await Book.findOne(query).lean();
 
     if (!book) {
       return res.status(404).json({

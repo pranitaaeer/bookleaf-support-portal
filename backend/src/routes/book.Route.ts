@@ -6,7 +6,7 @@ import { authenticate } from "../middleware/auth.Middleware.js";
 
 const router=express.Router()
 
-router.post("/get-books",authenticate, getMyBooks);
-router.post("/get-book/:bookId", authenticate,getBookById);
+router.get("/get-books",authenticate, getMyBooks);
+router.get("/get-book/:bookId", authenticate,getBookById);
 
 export default router
