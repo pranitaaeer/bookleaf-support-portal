@@ -19,6 +19,16 @@ app.get("/api/health", (_req: Request, res: Response) => {
   });
 });
 
+import authRouter from "./routes/auth.Route.js"
+import bookRouter from "./routes/book.Route.js"
+import ticketRouter from "./routes/ticket.Route.js"
+import adminRoutes from "./routes/admin.Route.js";
+
+app.use("/api/auth",authRouter)
+app.use("/api/book",bookRouter)
+app.use("/api/ticket",ticketRouter)
+app.use("/api/admin", adminRoutes);
+
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });
