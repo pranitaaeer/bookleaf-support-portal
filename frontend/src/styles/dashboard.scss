@@ -1057,6 +1057,301 @@ a {
   }
 }
 
+/* ===== Admin dashboard refinements ===== */
+
+.admin-stats {
+  gap: 18px;
+}
+
+/* Tone variants for admin stat cards */
+.admin-stat-card {
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 2px;
+    background: transparent;
+    content: "";
+    transition: background $transition;
+  }
+
+  &.green::before   { background: linear-gradient(90deg, $accent, transparent); }
+  &.blue::before    { background: linear-gradient(90deg, #7db8ff, transparent); }
+  &.red::before     { background: linear-gradient(90deg, #ff7777, transparent); }
+  &.purple::before  { background: linear-gradient(90deg, #c4a0ff, transparent); }
+}
+
+.admin-stat-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+
+  > span {
+    color: $text-secondary;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+  }
+}
+
+.admin-stat-icon {
+  display: grid;
+  place-items: center;
+  width: 41px;
+  height: 41px;
+  border-radius: 11px;
+  color: $accent;
+  background: rgba(67, 217, 139, 0.11);
+
+  &.blue   { color: #7db8ff; background: rgba(125, 184, 255, 0.11); }
+  &.red    { color: #ff9191; background: rgba(255, 119, 119, 0.11); }
+  &.purple { color: #c4a0ff; background: rgba(196, 160, 255, 0.11); }
+}
+
+.admin-stat-main {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 20px;
+
+  strong {
+    display: block;
+    font-size: clamp(22px, 2vw, 28px);
+    font-weight: 650;
+    letter-spacing: -0.8px;
+  }
+
+  p {
+    margin: 6px 0 0;
+    color: $text-secondary;
+    font-size: 11px;
+  }
+}
+
+.progress-ring {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background:
+    conic-gradient($accent var(--progress, 0%), #2b352e 0);
+  position: relative;
+
+  &::before {
+    position: absolute;
+    inset: 4px;
+    background: $bg-card;
+    border-radius: 50%;
+    content: "";
+  }
+
+  span {
+    position: relative;
+    z-index: 1;
+    color: $text-primary;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: -0.2px;
+  }
+
+  &.blue-ring   { background: conic-gradient(#7db8ff var(--progress, 0%), #2b352e 0); }
+  &.red-ring    { background: conic-gradient(#ff7777 var(--progress, 0%), #2b352e 0); }
+  &.purple-ring { background: conic-gradient(#c4a0ff var(--progress, 0%), #2b352e 0); }
+}
+
+.admin-stat-card small {
+  display: block;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px dashed $border;
+  color: $text-muted;
+  font-size: 10px;
+}
+
+/* ===== Review button ===== */
+/* ===== Review button ===== */
+.review-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 32px;
+  padding: 8px 16px;
+  color: #07150c !important;          // dark text, forced
+  background: $accent;
+  border: 1px solid $accent;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+  text-decoration: none;
+  transition:
+    background $transition,
+    transform $transition,
+    box-shadow $transition;
+
+  &:hover {
+    color: #07150c !important;        // keep dark text on hover too
+    background: #63e8a2;
+    box-shadow: 0 6px 16px rgba(67, 217, 139, 0.25);
+  }
+
+  &:active {
+    transform: scale(0.97);
+  }
+
+  /* Ensure it works even if some parent sets a weird color */
+  &,
+  &:visited,
+  &:link {
+    color: #07150c !important;
+  }
+}
+
+/* Small tweak: stronger header row */
+.panel__header {
+  border-bottom: 1px solid $border;
+}
+
+.portal-table tbody td strong {
+  color: $text-primary;
+  font-weight: 600;
+}
+
+.portal-table tbody td .muted {
+  color: $text-muted;
+  font-size: 10px;
+}
+
+/* Responsive tweaks for the new button */
+@media (max-width: 600px) {
+  .progress-ring {
+    width: 44px;
+    height: 44px;
+
+    span { font-size: 9px; }
+  }
+
+  .review-btn {
+    padding: 7px 12px;
+    font-size: 10px;
+  }
+}
+
+/* ===== Author dashboard refinements ===== */
+
+/* Colored top accent on each author stat card */
+.author-stat-card {
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 2px;
+    content: "";
+    transition: background $transition;
+  }
+
+  &.green::before  { background: linear-gradient(90deg, $accent, transparent); }
+  &.blue::before   { background: linear-gradient(90deg, #7db8ff, transparent); }
+  &.purple::before { background: linear-gradient(90deg, #c4a0ff, transparent); }
+  &.orange::before { background: linear-gradient(90deg, #f6c66b, transparent); }
+}
+
+/* Royalty row: value + percent badge */
+.royalty-row__value {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.royalty-row__percent {
+  display: inline-grid;
+  place-items: center;
+  min-width: 38px;
+  padding: 3px 6px;
+  color: $text-secondary;
+  background: $bg-secondary;
+  border: 1px solid $border;
+  border-radius: 6px;
+  font-size: 9px;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Royalty bars: subtle inner glow on filled portion */
+.royalty-bar {
+  span {
+    box-shadow: 0 0 8px rgba(67, 217, 139, 0.25);
+  }
+
+  &__pending {
+    box-shadow: 0 0 8px rgba(246, 198, 107, 0.25);
+  }
+}
+
+/* Royalty total: subtle live accent */
+.royalty-total {
+  position: relative;
+
+  &::after {
+    position: absolute;
+    top: 14px;
+    right: 16px;
+    width: 8px;
+    height: 8px;
+    background: $accent;
+    border-radius: 50%;
+    box-shadow: 0 0 10px rgba(67, 217, 139, 0.55);
+    content: "";
+    animation: pulse-dot 2.4s ease-in-out infinite;
+  }
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%      { opacity: 0.55; transform: scale(0.85); }
+}
+
+/* Book cover: subtle hover lift when hovering the row */
+.data-table tbody tr:hover .book-cell__cover {
+  transform: translateY(-1px);
+  border-color: #4b7a5a;
+}
+
+.book-cell__cover {
+  transition:
+    transform $transition,
+    border-color $transition;
+}
+
+/* Make the panel footer link hover nicer */
+.panel__footer a:hover {
+  color: #8cf0b8;
+}
+
+
+
+/* Tablet gap tweak for author stats */
+@media (max-width: 1250px) {
+  .author-stat-card {
+    padding: 18px;
+  }
+}
+
+@media (max-width: 600px) {
+  .royalty-row__percent {
+    display: none;
+  }
+}
 @media (max-width: 1024px) {
   .app-main {
     margin-left: 0;

@@ -1,8 +1,19 @@
 import { Link } from "react-router-dom";
 import DashboardLayout from "../../components/layout/DashboardLayout";
 import { CircleCheck, Clock3, AlertTriangle, Ticket } from "lucide-react";
+import type { CSSProperties } from "react";
 
-const urgentTickets = [
+type Priority = "High" | "Medium" | "Low";
+
+type TicketItem = {
+  id: string;
+  subject: string;
+  category: string;
+  priority: Priority;
+  age: string;
+};
+
+const urgentTickets: TicketItem[] = [
   {
     id: "TKT-1024",
     subject: "Pending royalty payment",
@@ -26,6 +37,67 @@ const urgentTickets = [
   },
 ];
 
+const priorityClass: Record<Priority, string> = {
+  High: "priority-badge priority-badge--high",
+  Medium: "priority-badge priority-badge--medium",
+  Low: "priority-badge priority-badge--low",
+};
+
+type StatTone = "green" | "blue" | "red" | "purple";
+
+type Stat = {
+  label: string;
+  value: string;
+  sub: string;
+  icon: typeof Ticket;
+  progress: number;
+  tone: StatTone;
+  caption: string;
+};
+
+const stats: Stat[] = [
+  {
+    label: "Open Tickets",
+    value: "18",
+    sub: "Awaiting resolution",
+    icon: Ticket,
+    progress: 72,
+    tone: "green",
+    caption: "18 of 25 ticket capacity",
+  },
+  {
+    label: "In Progress",
+    value: "07",
+    sub: "Being handled",
+    icon: Clock3,
+    progress: 35,
+    tone: "blue",
+    caption: "7 of 20 active tickets",
+  },
+  {
+    label: "Critical / High",
+    value: "04",
+    sub: "Need attention",
+    icon: AlertTriangle,
+    progress: 20,
+    tone: "red",
+    caption: "4 of 20 active tickets",
+  },
+  {
+    label: "Resolved Today",
+    value: "12",
+    sub: "Successfully resolved",
+    icon: CircleCheck,
+    progress: 80,
+    tone: "purple",
+    caption: "12 of 15 daily target",
+  },
+];
+
+// Helper to safely pass a CSS custom property to style
+const progressStyle = (progress: number): CSSProperties =>
+  ({ "--progress": `${progress}%` }) as CSSProperties;
+
 export default function AdminDashboard() {
   return (
     <DashboardLayout>
@@ -43,101 +115,50 @@ export default function AdminDashboard() {
         </div>
 
         <div className="stat-grid admin-stats">
-          <div className="stat-card admin-stat-card">
-            <div className="admin-stat-top">
-              <span>Open Tickets</span>
-              <div className="admin-stat-icon">
-                <Ticket size={19} />
-              </div>
-            </div>
-            <div className="admin-stat-main">
-              <div>
-                <strong>18</strong>
-                <p>Awaiting resolution</p>
-              </div>
+          {stats.map((s) => {
+            const Icon = s.icon;
+            return (
               <div
-                className="progress-ring"
-                style={{ "--progress": "72%" } as React.CSSProperties}
+                key={s.label}
+                className={`stat-card admin-stat-card ${s.tone}`}
               >
-                <span>72%</span>
-              </div>
-            </div>
-            
-            <small>18 of 25 ticket capacity</small>
-          </div>
+                <div className="admin-stat-top">
+                  <span>{s.label}</span>
+                  <div className={`admin-stat-icon ${s.tone}`}>
+                    <Icon size={19} />
+                  </div>
+                </div>
 
-          <div className="stat-card admin-stat-card">
-            <div className="admin-stat-top">
-              <span>In Progress</span>
-              <div className="admin-stat-icon blue">
-                <Clock3 size={19} />
-              </div>
-            </div>
-            <div className="admin-stat-main">
-              <div>
-                <strong>07</strong>
-                <p>Being handled</p>
-              </div>
-              <div
-                className="progress-ring blue-ring"
-                style={{ "--progress": "35%" } as React.CSSProperties}
-              >
-                <span>35%</span>
-              </div>
-            </div>
-            
-            <small>7 of 20 active tickets</small>
-          </div>
+                <div className="admin-stat-main">
+                  <div>
+                    <strong>{s.value}</strong>
+                    <p>{s.sub}</p>
+                  </div>
+                  <div
+                    className={`progress-ring ${s.tone}-ring`}
+                    style={progressStyle(s.progress)}
+                  >
+                    <span>{s.progress}%</span>
+                  </div>
+                </div>
 
-          <div className="stat-card admin-stat-card">
-            <div className="admin-stat-top">
-              <span>Critical / High</span>
-              <div className="admin-stat-icon red">
-                <AlertTriangle size={19} />
+                <small>{s.caption}</small>
               </div>
-            </div>
-            <div className="admin-stat-main">
-              <div>
-                <strong>04</strong>
-                <p>Need attention</p>
-              </div>
-              <div
-                className="progress-ring red-ring"
-                style={{ "--progress": "20%" } as React.CSSProperties}
-              >
-                <span>20%</span>
-              </div>
-            </div>
-           
-            <small>4 of 20 active tickets</small>
-          </div>
-
-          <div className="stat-card admin-stat-card">
-            <div className="admin-stat-top">
-              <span>Resolved Today</span>
-              <div className="admin-stat-icon purple">
-                <CircleCheck size={19} />
-              </div>
-            </div>
-            <div className="admin-stat-main">
-              <div>
-                <strong>12</strong>
-                <p>Successfully resolved</p>
-              </div>
-              <div
-                className="progress-ring purple-ring"
-                style={{ "--progress": "80%" } as React.CSSProperties}
-              >
-                <span>80%</span>
-              </div>
-            </div>
-           
-            <small>12 of 15 daily target</small>
-          </div>
+            );
+          })}
         </div>
 
         <section className="panel">
-          <h2>Tickets requiring attention</h2>
+          <div className="panel__header">
+            <div className="panel__title-row">
+              <AlertTriangle size={16} />
+              <h2>Tickets requiring attention</h2>
+            </div>
+            <Link className="text-link" to="/admin/tickets">
+              View all →
+            </Link>
+          </div>
+
           <div className="table-wrap">
             <table className="portal-table">
               <thead>
@@ -146,7 +167,7 @@ export default function AdminDashboard() {
                   <th>Category</th>
                   <th>Priority</th>
                   <th>Waiting</th>
-                  <th>Action</th>
+                  <th style={{ textAlign: "right" }}>Action</th>
                 </tr>
               </thead>
               <tbody>
@@ -158,10 +179,19 @@ export default function AdminDashboard() {
                       <span className="muted">{ticket.id}</span>
                     </td>
                     <td>{ticket.category}</td>
-                    <td>{ticket.priority}</td>
-                    <td>{ticket.age}</td>
                     <td>
-                      <Link to={`/admin/tickets/${ticket.id}`}>Review →</Link>
+                      <span className={priorityClass[ticket.priority]}>
+                        {ticket.priority}
+                      </span>
+                    </td>
+                    <td>{ticket.age}</td>
+                    <td style={{ textAlign: "right" }}>
+                      <Link
+                        to={`/admin/tickets/${ticket.id}`}
+                        className="review-btn"
+                      >
+                        Review →
+                      </Link>
                     </td>
                   </tr>
                 ))}

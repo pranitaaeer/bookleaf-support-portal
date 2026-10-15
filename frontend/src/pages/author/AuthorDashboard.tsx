@@ -10,6 +10,7 @@ import {
   ShoppingBag,
   Wallet,
 } from "lucide-react";
+import { Link } from "react-router-dom";
 
 import DashboardLayout from "../../components/layout/DashboardLayout";
 import { books, dashboardStats, tickets } from "../../data/dashboardData";
@@ -74,6 +75,14 @@ export default function AuthorDashboard() {
     },
   ];
 
+  const paidPercent = Math.round(
+    (dashboardStats.royaltyPaid / dashboardStats.totalEarned) * 100
+  );
+
+  const pendingPercent = Math.round(
+    (dashboardStats.royaltyPending / dashboardStats.totalEarned) * 100
+  );
+
   return (
     <DashboardLayout>
       <div className="dashboard">
@@ -93,15 +102,15 @@ export default function AuthorDashboard() {
             </p>
           </div>
 
-          <a className="button button--primary" href="/author/tickets/new">
+          <Link className="button button--primary" to="/author/tickets/new">
             <Plus size={18} />
             Raise a ticket
-          </a>
+          </Link>
         </section>
 
         <section className="stats-grid" aria-label="Author statistics">
           {stats.map(({ title, value, note, icon: Icon, tone, trend }) => (
-            <article className="stat-card" key={title}>
+            <article className={`stat-card author-stat-card ${tone}`} key={title}>
               <div className="stat-card__top">
                 <span className={`stat-card__icon stat-card__icon--${tone}`}>
                   <Icon size={20} />
@@ -136,9 +145,9 @@ export default function AuthorDashboard() {
                 <p>Track your published titles and performance.</p>
               </div>
 
-              <a className="text-link" href="/author/books">
+              <Link className="text-link" to="/author/books">
                 View all <ArrowRight size={15} />
-              </a>
+              </Link>
             </div>
 
             <div className="table-wrap">
@@ -162,7 +171,9 @@ export default function AuthorDashboard() {
                           </div>
                           <div>
                             <strong>{book.title}</strong>
-                            <span>{book.id} · {book.genre}</span>
+                            <span>
+                              {book.id} · {book.genre}
+                            </span>
                           </div>
                         </div>
                       </td>
@@ -191,9 +202,9 @@ export default function AuthorDashboard() {
 
             <div className="panel__footer">
               <span>Showing {books.length} sample titles</span>
-              <a href="/author/books">
+              <Link to="/author/books">
                 Explore your library <ArrowRight size={15} />
-              </a>
+              </Link>
             </div>
           </article>
 
@@ -222,19 +233,16 @@ export default function AuthorDashboard() {
                   <span className="royalty-dot royalty-dot--paid" />
                   <span>Paid to you</span>
                 </div>
-                <strong>{currency(dashboardStats.royaltyPaid)}</strong>
+                <div className="royalty-row__value">
+                  <strong>{currency(dashboardStats.royaltyPaid)}</strong>
+                  <span className="royalty-row__percent">{paidPercent}%</span>
+                </div>
               </div>
 
               <div className="royalty-bar">
                 <span
                   className="royalty-bar__paid"
-                  style={{
-                    width: `${
-                      (dashboardStats.royaltyPaid /
-                        dashboardStats.totalEarned) *
-                      100
-                    }%`,
-                  }}
+                  style={{ width: `${paidPercent}%` }}
                 />
               </div>
 
@@ -243,19 +251,18 @@ export default function AuthorDashboard() {
                   <span className="royalty-dot royalty-dot--pending" />
                   <span>Pending</span>
                 </div>
-                <strong>{currency(dashboardStats.royaltyPending)}</strong>
+                <div className="royalty-row__value">
+                  <strong>{currency(dashboardStats.royaltyPending)}</strong>
+                  <span className="royalty-row__percent">
+                    {pendingPercent}%
+                  </span>
+                </div>
               </div>
 
               <div className="royalty-bar">
                 <span
                   className="royalty-bar__pending"
-                  style={{
-                    width: `${
-                      (dashboardStats.royaltyPending /
-                        dashboardStats.totalEarned) *
-                      100
-                    }%`,
-                  }}
+                  style={{ width: `${pendingPercent}%` }}
                 />
               </div>
             </div>
@@ -280,9 +287,9 @@ export default function AuthorDashboard() {
               <p>Stay updated on your conversations with BookLeaf support.</p>
             </div>
 
-            <a className="text-link" href="/author/tickets">
+            <Link className="text-link" to="/author/tickets">
               View all <ArrowRight size={15} />
-            </a>
+            </Link>
           </div>
 
           <div className="table-wrap">
@@ -294,7 +301,7 @@ export default function AuthorDashboard() {
                   <th>PRIORITY</th>
                   <th>STATUS</th>
                   <th>LAST UPDATED</th>
-                  <th />
+                  <th style={{ textAlign: "right" }}>ACTION</th>
                 </tr>
               </thead>
 
@@ -329,14 +336,14 @@ export default function AuthorDashboard() {
 
                     <td className="muted-cell">{ticket.updatedAt}</td>
 
-                    <td>
-                      <a
-                        className="row-action"
-                        href={`/author/tickets/${ticket.id}`}
+                    <td style={{ textAlign: "right" }}>
+                      <Link
+                        to={`/author/tickets/${ticket.id}`}
+                        className="review-btn"
                         aria-label={`View ${ticket.subject}`}
                       >
-                        <ArrowRight size={17} />
-                      </a>
+                        View →
+                      </Link>
                     </td>
                   </tr>
                 ))}

@@ -1,4 +1,3 @@
-
 import {
   LayoutDashboard,
   BookOpen,
@@ -46,6 +45,11 @@ const adminNavigation = [
     icon: ClipboardList,
     path: "/admin/tickets",
   },
+  {
+    label: "Manage Tickets",
+    icon: PlusCircle,
+    path: "/admin/tickets/manage",
+  },
 ];
 
 export default function Sidebar({ open, onClose }: SidebarProps) {
@@ -55,38 +59,16 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
   const isAdmin = location.pathname.startsWith("/admin");
   const navigation = isAdmin ? adminNavigation : authorNavigation;
 
- const isActive = (path: string) => {
-  const currentPath = location.pathname;
-
-  // Dashboard: exact match only
-  if (
-    path === "/author/dashboard" ||
-    path === "/admin/dashboard"
-  ) {
-    return currentPath === path;
-  }
-
-  // Tickets list: exact match only
-  if (
-    path === "/author/tickets" ||
-    path === "/admin/tickets"
-  ) {
-    return currentPath === path;
-  }
-
-  // Other routes: exact match
-  return currentPath === path;
-};
+  // Exact match only — ensures /admin/tickets and /admin/tickets/manage
+  // don't highlight each other, and /author/tickets vs /author/tickets/new
+  // stay independent too.
+  const isActive = (path: string) => location.pathname === path;
 
   function handleLogout() {
     // Demo UI only. Real logout backend authentication ke baad.
     navigate("/login");
     onClose();
   }
-
-  const createTicketPath = isAdmin
-    ? "/admin/tickets"
-    : "/author/tickets/new";
 
   return (
     <>
@@ -98,9 +80,7 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
         />
       )}
 
-      <aside
-        className={`sidebar ${open ? "sidebar--open" : ""}`}
-      >
+      <aside className={`sidebar ${open ? "sidebar--open" : ""}`}>
         <div className="sidebar__brand">
           <div className="sidebar__logo">
             <Leaf size={23} />
@@ -143,22 +123,12 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
             </Link>
           ))}
 
-          {isAdmin ? (
+          {/* Author-only: Create Ticket shortcut */}
+          {!isAdmin && (
             <Link
-              to="/admin/tickets"
+              to="/author/tickets/new"
               className={`sidebar__link ${
-                isActive("/admin/tickets") ? "sidebar__link--active" : ""
-              }`}
-              onClick={onClose}
-            >
-              <PlusCircle size={19} strokeWidth={1.8} />
-              <span>Manage Tickets</span>
-            </Link>
-          ) : (
-            <Link
-              to={createTicketPath}
-              className={`sidebar__link ${
-                location.pathname === createTicketPath
+                isActive("/author/tickets/new")
                   ? "sidebar__link--active"
                   : ""
               }`}
@@ -198,7 +168,7 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
             <Link
               to="/author/settings"
               className={`sidebar__link ${
-                location.pathname === "/author/settings"
+                isActive("/author/settings")
                   ? "sidebar__link--active"
                   : ""
               }`}
