@@ -319,7 +319,7 @@ export async function sendTicketReply(req: Request, res: Response) {
     const { ticketId } = req.params;
     const { message } = req.body;
     const adminId = req.user?.id;
-
+ 
     if (!adminId) {
       return res.status(401).json({
         success: false,

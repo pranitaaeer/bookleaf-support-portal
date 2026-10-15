@@ -40,7 +40,6 @@ export async function getMyBooks(req: Request, res: Response) {
 // GET /api/books/:bookId
 export async function getBookById(req: Request, res: Response) {
   try {
-    // const authorId = req.user?.id;
     const authorId = req.user?.id;
     const { bookId } = req.params;
 
