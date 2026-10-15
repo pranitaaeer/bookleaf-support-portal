@@ -3,6 +3,12 @@ import { Schema, model, type InferSchemaType } from "mongoose";
 
 const authorSchema = new Schema(
   {
+    authorId: {
+      type: String,
+      required: true,
+      unique: true,
+      trim: true,
+    },
     name: {
       type: String,
       required: true,
@@ -23,6 +29,14 @@ const authorSchema = new Schema(
     phone: {
       type: String,
       trim: true,
+    },
+    city: {
+      type: String,
+      trim: true,
+    },
+    joinedDate: {
+      type: Date,
+      default: null,
     },
     isActive: {
       type: Boolean,

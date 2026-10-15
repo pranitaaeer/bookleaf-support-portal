@@ -3,6 +3,7 @@ import type { Request, Response } from "express";
 import mongoose from "mongoose";
 import Ticket from "../models/Ticket.model.js";
 import TicketMessage from "../models/TicketMessage.model.js";
+import { generateTicketDraft } from "../services/aiService.js";
 
 // GET /api/admin/tickets
 export async function getAllTickets(req: Request, res: Response) {
@@ -377,6 +378,75 @@ export async function sendTicketReply(req: Request, res: Response) {
     return res.status(500).json({
       success: false,
       message: "Unable to send the reply right now.",
+    });
+  }
+}
+
+export async function generateTicketAIDraft(
+  req: Request,
+  res: Response
+) {
+  try {
+    const { ticketId } = req.params;
+
+    if (!mongoose.isValidObjectId(ticketId)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid ticket ID.",
+      });
+    }
+
+    const ticket = await Ticket.findById(ticketId).populate(
+      "book",
+      "title status"
+    );
+
+    if (!ticket) {
+      return res.status(404).json({
+        success: false,
+        message: "Ticket not found.",
+      });
+    }
+
+    const book = ticket.book as unknown as
+      | { title?: string; status?: string }
+      | null;
+
+    const draft = await generateTicketDraft({
+      subject: ticket.subject,
+      description: ticket.description,
+      category: ticket.category,
+      priority: ticket.priority,
+      bookTitle: book?.title,
+      bookStatus: book?.status,
+    });
+
+    if (!draft) {
+      return res.status(503).json({
+        success: false,
+        message:
+          "AI draft generation is temporarily unavailable. Please try again.",
+      });
+    }
+
+    ticket.aiDraftResponse = draft;
+    ticket.aiDraftGeneratedAt = new Date();
+    await ticket.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "AI reply draft generated successfully.",
+      data: {
+        draft,
+        generatedAt: ticket.aiDraftGeneratedAt,
+      },
+    });
+  } catch (error) {
+    console.error("Generate AI draft error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Unable to generate an AI draft right now.",
     });
   }
 }

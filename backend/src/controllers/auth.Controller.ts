@@ -2,30 +2,39 @@
 import type { Request, Response } from "express";
 import bcrypt from "bcryptjs";
 import Author from "../models/Author.model.js";
-import User from "../models/User.model.js";
+import User from "../models/Admin.model.js";
 import {createToken} from "../utils/authfun.js"
 
 
 // POST /api/auth/register
 export async function registerAuthor(req: Request, res: Response) {
   try {
-    const { name, email, password,} = req.body;
+    const { name, email, password } = req.body;
 
-     if([name,email,password].some((elm)=>  !elm || !elm.trim() )){
-        return res.status(400).json({
+    if (
+      !name?.trim() ||
+      !email?.trim() ||
+      !password
+    ) {
+      return res.status(400).json({
         success: false,
         message: "Name, email and password are required.",
       });
-     }
+    }
 
-    if (typeof password !== "string" || password.length < 8) {
+    if (
+      typeof password !== "string" ||
+      password.length < 8
+    ) {
       return res.status(400).json({
         success: false,
         message: "Password must contain at least 8 characters.",
       });
     }
 
-    const normalizedEmail = String(email).trim().toLowerCase();
+    const normalizedEmail = String(email)
+      .trim()
+      .toLowerCase();
 
     const existingAuthor = await Author.findOne({
       email: normalizedEmail,
@@ -40,7 +49,10 @@ export async function registerAuthor(req: Request, res: Response) {
 
     const passwordHash = await bcrypt.hash(password, 12);
 
+    const authorId = `AUTH-${crypto.randomUUID()}`;
+
     const author = await Author.create({
+      authorId,
       name: name.trim(),
       email: normalizedEmail,
       passwordHash,
@@ -54,6 +66,7 @@ export async function registerAuthor(req: Request, res: Response) {
       token,
       user: {
         id: author.id,
+        authorId: author.authorId,
         name: author.name,
         email: author.email,
         role: "author",
@@ -62,12 +75,26 @@ export async function registerAuthor(req: Request, res: Response) {
   } catch (error) {
     console.error("Author registration error:", error);
 
+    // Handle duplicate email/authorId conflicts.
+    if (
+      typeof error === "object" &&
+      error !== null &&
+      "code" in error &&
+      error.code === 11000
+    ) {
+      return res.status(409).json({
+        success: false,
+        message: "An account with this email or ID already exists. Please try again.",
+      });
+    }
+
     return res.status(500).json({
       success: false,
       message: "Unable to create the account right now.",
     });
   }
 }
+
 
 // POST /api/auth/login
 export async function login(req: Request, res: Response) {

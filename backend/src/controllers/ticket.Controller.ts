@@ -4,6 +4,7 @@ import mongoose from "mongoose";
 import Book from "../models/Book.model.js";
 import Ticket from "../models/Ticket.model.js";
 import TicketMessage from "../models/TicketMessage.model.js";
+import { classifyTicket } from "../services/aiService.js";
 
 // POST /api/tickets
 export async function createTicket(req: Request, res: Response) {
@@ -62,24 +63,45 @@ export async function createTicket(req: Request, res: Response) {
       validBookId = book._id;
     }
 
+    // Ask Groq AI to classify the ticket and suggest its priority.
+    // If AI fails, the ticket can still be created.
+    const aiResult = await classifyTicket(
+      subject.trim(),
+      description.trim()
+    );
+
     const ticket = await Ticket.create({
       author: authorId,
       book: validBookId,
       subject: subject.trim(),
       description: description.trim(),
+
       attachmentName:
         typeof attachmentName === "string"
           ? attachmentName.trim()
           : undefined,
-      category: "General Inquiry",
-      priority: "Medium",
+
+      category: aiResult?.category ?? "General Inquiry",
+      aiSuggestedCategory: aiResult?.category ?? null,
+      categoryOverridden: false,
+
+      priority: aiResult?.priority ?? "Medium",
+      aiSuggestedPriority: aiResult?.priority ?? null,
+      priorityOverridden: false,
+
       status: "Open",
     });
 
     return res.status(201).json({
       success: true,
-      message: "Ticket created successfully.",
+      message: aiResult
+        ? "Ticket created and classified by AI."
+        : "Ticket created. AI classification is temporarily unavailable.",
       data: ticket,
+      ai: {
+        available: aiResult !== null,
+        reason: aiResult?.reason ?? null,
+      },
     });
   } catch (error) {
     console.error("Create ticket error:", error);

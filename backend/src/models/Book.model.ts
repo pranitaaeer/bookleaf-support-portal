@@ -3,6 +3,12 @@ import { Schema, model } from "mongoose";
 
 const bookSchema = new Schema(
   {
+    bookId: {
+      type: String,
+      required: true,
+      unique: true,
+      trim: true,
+    },
     author: {
       type: Schema.Types.ObjectId,
       ref: "Author",
@@ -39,12 +45,19 @@ const bookSchema = new Schema(
         "Printing",
         "Distribution Setup",
         "Published & Live",
+        "In Production - Cover Design",
+        "In Production - Typesetting",
       ],
     },
     mrp: {
       type: Number,
       min: 0,
       default: 0,
+    },
+    authorRoyaltyPerCopy: {
+      type: Number,
+      min: 0,
+      default: null,
     },
     totalCopiesSold: {
       type: Number,
@@ -65,6 +78,18 @@ const bookSchema = new Schema(
       type: Number,
       min: 0,
       default: 0,
+    },
+    lastRoyaltyPayoutDate: {
+      type: Date,
+      default: null,
+    },
+    printPartner: {
+      type: String,
+      default: null,
+    },
+    availableOn: {
+      type: [String],
+      default: [],
     },
     distributionDetails: {
       type: Schema.Types.Mixed,

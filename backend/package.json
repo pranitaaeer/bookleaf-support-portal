@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "tsx watch src/server.ts",
     "build": "tsc",
-    "start": "node dist/server.js"
+    "start": "node dist/src/server.js"
   },
   "keywords": [],
   "author": "Pranita Aeer",
@@ -20,8 +20,7 @@
     "express-validator": "^7.3.2",
     "groq-sdk": "^1.6.0",
     "jsonwebtoken": "^9.0.3",
-    "mongoose": "^9.11.2",
-    "openai": "^7.34.0"
+    "mongoose": "^9.11.2"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
