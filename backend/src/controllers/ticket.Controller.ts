@@ -1,10 +1,10 @@
-
 import type { Request, Response } from "express";
 import mongoose from "mongoose";
 import Book from "../models/Book.model.js";
 import Ticket from "../models/Ticket.model.js";
 import TicketMessage from "../models/TicketMessage.model.js";
 import { classifyTicket } from "../services/aiService.js";
+import Author from "../models/Author.model.js";
 
 // POST /api/tickets
 export async function createTicket(req: Request, res: Response) {
@@ -18,7 +18,16 @@ export async function createTicket(req: Request, res: Response) {
         message: "Authentication required.",
       });
     }
+    const author = await Author.findOne({ _id: authorId });
 
+    if (!author) {
+      return res.status(404).json({
+        success: false,
+        message: `Author ${authorId} not found.`,
+      });
+    }
+
+    const authorObjectId = author._id;
     if (
       typeof subject !== "string" ||
       !subject.trim() ||
@@ -38,48 +47,43 @@ export async function createTicket(req: Request, res: Response) {
       });
     }
 
-    let validBookId: mongoose.Types.ObjectId | null = null;
-
-    if (bookId) {
-      if (!mongoose.isValidObjectId(bookId)) {
+    let validBookObjectId = null;
+    if (bookId !== undefined && bookId !== null && bookId !== "") {
+      if (typeof bookId !== "string" || !bookId.trim()) {
         return res.status(400).json({
           success: false,
           message: "Invalid book ID.",
         });
       }
 
+      // BK015 is the sample-data business ID, not MongoDB _id.
       const book = await Book.findOne({
-        _id: bookId,
-        author: authorId,
+        bookId: bookId.trim(),
+        author: authorObjectId,
       });
 
       if (!book) {
         return res.status(404).json({
           success: false,
-          message: "Book not found in your account.",
+          message: `Book not found in ${authorId}'s account.`,
         });
       }
 
-      validBookId = book._id;
+      validBookObjectId = book._id;
     }
 
     // Ask Groq AI to classify the ticket and suggest its priority.
     // If AI fails, the ticket can still be created.
-    const aiResult = await classifyTicket(
-      subject.trim(),
-      description.trim()
-    );
+    const aiResult = await classifyTicket(subject.trim(), description.trim());
 
     const ticket = await Ticket.create({
       author: authorId,
-      book: validBookId,
+      book: validBookObjectId,
       subject: subject.trim(),
       description: description.trim(),
 
       attachmentName:
-        typeof attachmentName === "string"
-          ? attachmentName.trim()
-          : undefined,
+        typeof attachmentName === "string" ? attachmentName.trim() : undefined,
 
       category: aiResult?.category ?? "General Inquiry",
       aiSuggestedCategory: aiResult?.category ?? null,
@@ -128,7 +132,7 @@ export async function getMyTickets(req: Request, res: Response) {
     const tickets = await Ticket.find({ author: authorId })
       .populate("book", "title isbn")
       .select(
-        "subject description category priority status createdAt updatedAt book"
+        "subject description category priority status createdAt updatedAt book",
       )
       .sort({ updatedAt: -1 })
       .lean();
