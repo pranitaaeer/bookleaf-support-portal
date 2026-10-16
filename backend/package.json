@@ -3,11 +3,11 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "scripts": {
-    "dev": "tsx watch src/server.ts",
-    "build": "tsc",
-    "start": "node dist/src/server.js"
-  },
+ "scripts": {
+  "dev": "tsx watch src/server.ts",
+  "build": "tsc",
+  "start": "node -r dotenv/config dist/src/server.js"
+},
   "keywords": [],
   "author": "Pranita Aeer",
   "license": "ISC",

@@ -73,11 +73,16 @@ export async function getAllTickets(req: Request, res: Response) {
 }
 
 // GET /api/admin/tickets/:ticketId
-export async function getAdminTicketById(req: Request, res: Response) {
+export async function getAdminTicketById(
+  req: Request,
+  res: Response
+) {
   try {
-    const { ticketId } = req.params;
+    const ticketId = Array.isArray(req.params.ticketId)
+      ? req.params.ticketId[0]
+      : req.params.ticketId;
 
-    if (!mongoose.isValidObjectId(ticketId)) {
+    if (typeof ticketId !== "string" || !mongoose.isValidObjectId(ticketId)) {
       return res.status(400).json({
         success: false,
         message: "Invalid ticket ID.",
@@ -96,16 +101,12 @@ export async function getAdminTicketById(req: Request, res: Response) {
       });
     }
 
-    const messages = await TicketMessage.find({ ticket: ticketId })
-      .sort({ createdAt: 1 })
-      .lean();
+    // Do not return the entire notes array.
+    const { internalNotes, ...ticketDetails } = ticket;
 
     return res.status(200).json({
       success: true,
-      data: {
-        ...ticket,
-        messages,
-      },
+      data: ticketDetails,
     });
   } catch (error) {
     console.error("Get admin ticket details error:", error);
@@ -128,7 +129,7 @@ export async function updateTicket(req: Request, res: Response) {
       assignedAdmin,
     } = req.body;
 
-    if (!mongoose.isValidObjectId(ticketId)) {
+    if (typeof ticketId !== "string" || !mongoose.isValidObjectId(ticketId)) {
       return res.status(400).json({
         success: false,
         message: "Invalid ticket ID.",
@@ -248,6 +249,7 @@ export async function updateTicket(req: Request, res: Response) {
     });
   }
 }
+
 
 // POST /api/admin/tickets/:ticketId/notes
 export async function addInternalNote(req: Request, res: Response) {
@@ -387,9 +389,9 @@ export async function generateTicketAIDraft(
   res: Response
 ) {
   try {
-    const { ticketId } = req.params;
+    const ticketId = req.params.ticketId;
 
-    if (!mongoose.isValidObjectId(ticketId)) {
+    if (typeof ticketId !== "string" || !mongoose.isValidObjectId(ticketId)) {
       return res.status(400).json({
         success: false,
         message: "Invalid ticket ID.",
@@ -447,6 +449,157 @@ export async function generateTicketAIDraft(
     return res.status(500).json({
       success: false,
       message: "Unable to generate an AI draft right now.",
+    });
+  }
+}
+
+// GET /api/admin/tickets/:ticketId/messages?page=1&limit=10
+export async function getAdminTicketMessages(
+  req: Request,
+  res: Response
+) {
+  try {
+    const ticketId = Array.isArray(req.params.ticketId)
+      ? req.params.ticketId[0]
+      : req.params.ticketId;
+
+    if (typeof ticketId !== "string" || !mongoose.isValidObjectId(ticketId)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid ticket ID.",
+      });
+    }
+
+    const page = Math.max(1, Number(req.query.page) || 1);
+    const limit = Math.min(
+      50,
+      Math.max(1, Number(req.query.limit) || 5)
+    );
+    const skip = (page - 1) * limit;
+
+    const ticketExists = await Ticket.exists({ _id: ticketId });
+
+    if (!ticketExists) {
+      return res.status(404).json({
+        success: false,
+        message: "Ticket not found.",
+      });
+    }
+
+    const filter = {
+      ticket: new mongoose.Types.ObjectId(ticketId),
+      isInternal: false,
+    };
+
+    const [items, totalItems] = await Promise.all([
+      TicketMessage.find(filter)
+        .sort({ createdAt: -1, _id: -1 })
+        .skip(skip)
+        .limit(limit)
+        .lean(),
+
+      TicketMessage.countDocuments(filter),
+    ]);
+
+    return res.status(200).json({
+      success: true,
+      data: {
+        items,
+        pagination: {
+          page,
+          limit,
+          totalItems,
+          totalPages: Math.ceil(totalItems / limit),
+        },
+      },
+    });
+  } catch (error) {
+    console.error("Get paginated ticket messages error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Unable to fetch ticket messages.",
+    });
+  }
+}
+
+
+// GET /api/admin/tickets/:ticketId/notes?page=1&limit=10
+export async function getAdminTicketNotes(
+  req: Request,
+  res: Response
+) {
+  try {
+    const ticketId = Array.isArray(req.params.ticketId)
+      ? req.params.ticketId[0]
+      : req.params.ticketId;
+
+    if (typeof ticketId !== "string" || !mongoose.isValidObjectId(ticketId)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid ticket ID.",
+      });
+    }
+
+    const page = Math.max(1, Number(req.query.page) || 1);
+    const limit = Math.min(
+      50,
+      Math.max(1, Number(req.query.limit) || 4)
+    );
+    const skip = (page - 1) * limit;
+
+    const results = await Ticket.aggregate([
+      {
+        $match: {
+          _id: new mongoose.Types.ObjectId(ticketId),
+        },
+      },
+      {
+        $project: {
+          totalItems: { $size: "$internalNotes" },
+          items: {
+            $slice: [
+              {
+                $reverseArray: {
+                  $ifNull: ["$internalNotes", []],
+                },
+              },
+              skip,
+              limit,
+            ],
+          },
+        },
+      },
+    ]);
+
+    if (!results.length) {
+      return res.status(404).json({
+        success: false,
+        message: "Ticket not found.",
+      });
+    }
+
+    const { items, totalItems } = results[0];
+
+    return res.status(200).json({
+      success: true,
+      data: {
+        // Newest notes first.
+        items,
+        pagination: {
+          page,
+          limit,
+          totalItems,
+          totalPages: Math.ceil(totalItems / limit),
+        },
+      },
+    });
+  } catch (error) {
+    console.error("Get paginated ticket notes error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Unable to fetch internal notes.",
     });
   }
 }

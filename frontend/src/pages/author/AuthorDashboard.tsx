@@ -1,3 +1,5 @@
+
+import { useEffect, useState } from "react";
 import {
   ArrowDownRight,
   ArrowRight,
@@ -11,20 +13,54 @@ import {
   Wallet,
 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { toast } from "react-toastify";
 
 import DashboardLayout from "../../components/layout/DashboardLayout";
-import { books, dashboardStats, tickets } from "../../data/dashboardData";
+import api from "../../services/api";
 
-const currency = (amount: number) =>
+type BookItem = {
+  _id: string;
+  bookId?: string;
+  title: string;
+  isbn?: string;
+  genre?: string;
+  publicationDate?: string;
+  status: string;
+  mrp?: number;
+  totalCopiesSold?: number;
+  totalRoyaltyEarned?: number;
+  royaltyPaid?: number;
+  royaltyPending?: number;
+};
+
+type TicketItem = {
+  _id: string;
+  subject: string;
+  category?: string;
+  priority?: string;
+  status: string;
+  updatedAt?: string;
+};
+
+type ApiResponse<T> = {
+  success: boolean;
+  message?: string;
+  data: T;
+  count?: number;
+};
+
+const currency = (amount = 0) =>
   new Intl.NumberFormat("en-IN", {
     style: "currency",
     currency: "INR",
     maximumFractionDigits: 0,
-  }).format(amount);
+  }).format(Number.isFinite(amount) ? amount : 0);
 
 const statusClass: Record<string, string> = {
   Published: "published",
   "In Production": "production",
+  "In Production - Cover Design": "production",
+  "In Production - Typesetting": "production",
   "Under Review": "review",
   Open: "open",
   "In Progress": "progress",
@@ -39,19 +75,141 @@ const priorityClass: Record<string, string> = {
   Low: "low",
 };
 
+const formatDate = (value?: string) => {
+  if (!value) return "—";
+
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) return "—";
+
+  return date.toLocaleDateString("en-IN", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
+};
+
+const getErrorMessage = (error: unknown) => {
+  if (
+    typeof error === "object" &&
+    error !== null &&
+    "response" in error
+  ) {
+    const apiError = error as {
+      response?: {
+        data?: {
+          message?: string;
+        };
+      };
+    };
+
+    return (
+      apiError.response?.data?.message ||
+      "Unable to load dashboard data."
+    );
+  }
+
+  return "Unable to connect to the server.";
+};
+
 export default function AuthorDashboard() {
+  const [books, setBooks] = useState<BookItem[]>([]);
+  const [tickets, setTickets] = useState<TicketItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState("");
+
+  useEffect(() => {
+    let active = true;
+
+    async function loadDashboard() {
+      setLoading(true);
+      setLoadError("");
+
+      try {
+        const [booksResponse, ticketsResponse] = await Promise.all([
+          api.get<ApiResponse<BookItem[]>>("/book/get-books"),
+          api.get<ApiResponse<TicketItem[]>>("/ticket/my-tickets"),
+        ]);
+
+        if (!active) return;
+
+        setBooks(
+          Array.isArray(booksResponse.data.data)
+            ? booksResponse.data.data
+            : []
+        );
+
+        setTickets(
+          Array.isArray(ticketsResponse.data.data)
+            ? ticketsResponse.data.data
+            : []
+        );
+      } catch (error: unknown) {
+        if (!active) return;
+
+        const message = getErrorMessage(error);
+        setLoadError(message);
+        toast.error(message);
+      } finally {
+        if (active) setLoading(false);
+      }
+    }
+
+    void loadDashboard();
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const totalBooks = books.length;
+
+  const publishedBooks = books.filter(
+    (book) => book.status === "Published"
+  ).length;
+
+  const totalEarned = books.reduce(
+    (sum, book) => sum + (Number(book.totalRoyaltyEarned) || 0),
+    0
+  );
+
+  const royaltyPaid = books.reduce(
+    (sum, book) => sum + (Number(book.royaltyPaid) || 0),
+    0
+  );
+
+  const royaltyPending = books.reduce(
+    (sum, book) => sum + (Number(book.royaltyPending) || 0),
+    0
+  );
+
+  const totalCopiesSold = books.reduce(
+    (sum, book) => sum + (Number(book.totalCopiesSold) || 0),
+    0
+  );
+
+  const paidPercent =
+    totalEarned > 0
+      ? Math.min(100, Math.round((royaltyPaid / totalEarned) * 100))
+      : 0;
+
+  const pendingPercent =
+    totalEarned > 0
+      ? Math.min(100, Math.round((royaltyPending / totalEarned) * 100))
+      : 0;
+
   const stats = [
     {
       title: "Total books",
-      value: dashboardStats.totalBooks.toString(),
-      note: `${dashboardStats.publishedBooks} currently published`,
+      value: totalBooks.toString(),
+      note: `${publishedBooks} currently published`,
       icon: BookOpen,
       tone: "green",
       trend: "up",
     },
     {
       title: "Total royalty earned",
-      value: currency(dashboardStats.totalEarned),
+      value: currency(totalEarned),
       note: "Lifetime earnings",
       icon: CircleDollarSign,
       tone: "blue",
@@ -59,7 +217,7 @@ export default function AuthorDashboard() {
     },
     {
       title: "Royalty paid",
-      value: currency(dashboardStats.royaltyPaid),
+      value: currency(royaltyPaid),
       note: "Payments received",
       icon: Wallet,
       tone: "purple",
@@ -67,21 +225,13 @@ export default function AuthorDashboard() {
     },
     {
       title: "Royalty pending",
-      value: currency(dashboardStats.royaltyPending),
+      value: currency(royaltyPending),
       note: "Awaiting payment",
       icon: Clock3,
       tone: "orange",
       trend: "down",
     },
   ];
-
-  const paidPercent = Math.round(
-    (dashboardStats.royaltyPaid / dashboardStats.totalEarned) * 100
-  );
-
-  const pendingPercent = Math.round(
-    (dashboardStats.royaltyPending / dashboardStats.totalEarned) * 100
-  );
 
   return (
     <DashboardLayout>
@@ -94,7 +244,7 @@ export default function AuthorDashboard() {
             </div>
 
             <h1>
-              Good afternoon, <span>Pranita.</span>
+              Good afternoon, <span>Author.</span>
             </h1>
 
             <p>
@@ -102,36 +252,50 @@ export default function AuthorDashboard() {
             </p>
           </div>
 
-          <Link className="button button--primary" to="/author/tickets/new">
+          <Link
+            className="button button--primary"
+            to="/author/tickets/new"
+          >
             <Plus size={18} />
             Raise a ticket
           </Link>
         </section>
 
+        {loadError && (
+          <div className="portal-alert portal-alert--error" role="alert">
+            {loadError}
+          </div>
+        )}
+
         <section className="stats-grid" aria-label="Author statistics">
-          {stats.map(({ title, value, note, icon: Icon, tone, trend }) => (
-            <article className={`stat-card author-stat-card ${tone}`} key={title}>
-              <div className="stat-card__top">
-                <span className={`stat-card__icon stat-card__icon--${tone}`}>
-                  <Icon size={20} />
-                </span>
+          {stats.map(
+            ({ title, value, note, icon: Icon, tone, trend }) => (
+              <article
+                className={`stat-card author-stat-card ${tone}`}
+                key={title}
+              >
+                <div className="stat-card__top">
+                  <span className={`stat-card__icon stat-card__icon--${tone}`}>
+                    <Icon size={20} />
+                  </span>
 
-                <span className="stat-card__period">ALL TIME</span>
-              </div>
+                  <span className="stat-card__period">ALL TIME</span>
+                </div>
 
-              <p className="stat-card__title">{title}</p>
-              <h2>{value}</h2>
+                <p className="stat-card__title">{title}</p>
+                <h2>{loading ? "—" : value}</h2>
 
-              <div className="stat-card__footer">
-                {trend === "up" ? (
-                  <ArrowUpRight size={15} />
-                ) : (
-                  <ArrowDownRight size={15} />
-                )}
-                <span>{note}</span>
-              </div>
-            </article>
-          ))}
+                <div className="stat-card__footer">
+                  {trend === "up" ? (
+                    <ArrowUpRight size={15} />
+                  ) : (
+                    <ArrowDownRight size={15} />
+                  )}
+                  <span>{loading ? "Loading..." : note}</span>
+                </div>
+              </article>
+            )
+          )}
         </section>
 
         <section className="dashboard-grid">
@@ -162,46 +326,63 @@ export default function AuthorDashboard() {
                 </thead>
 
                 <tbody>
-                  {books.map((book) => (
-                    <tr key={book.id}>
-                      <td>
-                        <div className="book-cell">
-                          <div className="book-cell__cover">
-                            <BookOpen size={18} />
-                          </div>
-                          <div>
-                            <strong>{book.title}</strong>
-                            <span>
-                              {book.id} · {book.genre}
-                            </span>
-                          </div>
-                        </div>
-                      </td>
-
-                      <td>
-                        <span
-                          className={`status-badge status-badge--${statusClass[book.status]}`}
-                        >
-                          <span />
-                          {book.status}
-                        </span>
-                      </td>
-
-                      <td className="table-number">
-                        {book.copiesSold.toLocaleString("en-IN")}
-                      </td>
-
-                      <td className="table-number table-number--strong">
-                        {currency(book.royaltyEarned)}
-                      </td>
+                  {loading ? (
+                    <tr>
+                      <td colSpan={4}>Loading your books...</td>
                     </tr>
-                  ))}
+                  ) : books.length === 0 ? (
+                    <tr>
+                      <td colSpan={4}>No books found in your account.</td>
+                    </tr>
+                  ) : (
+                    books.slice(0, 5).map((book) => (
+                      <tr key={book._id}>
+                        <td>
+                          <div className="book-cell">
+                            <div className="book-cell__cover">
+                              <BookOpen size={18} />
+                            </div>
+                            <div>
+                              <strong>{book.title}</strong>
+                              <span>
+                                {book.bookId || book.isbn || "Book"} ·{" "}
+                                {book.genre || "General"}
+                              </span>
+                            </div>
+                          </div>
+                        </td>
+
+                        <td>
+                          <span
+                            className={`status-badge status-badge--${
+                              statusClass[book.status] || "open"
+                            }`}
+                          >
+                            <span />
+                            {book.status}
+                          </span>
+                        </td>
+
+                        <td className="table-number">
+                          {(Number(book.totalCopiesSold) || 0).toLocaleString(
+                            "en-IN"
+                          )}
+                        </td>
+
+                        <td className="table-number table-number--strong">
+                          {currency(Number(book.totalRoyaltyEarned) || 0)}
+                        </td>
+                      </tr>
+                    ))
+                  )}
                 </tbody>
               </table>
             </div>
 
             <div className="panel__footer">
-              <span>Showing {books.length} sample titles</span>
+              <span>
+                {loading ? "Loading..." : `Showing ${Math.min(books.length, 5)} of ${books.length} books`}
+              </span>
               <Link to="/author/books">
                 Explore your library <ArrowRight size={15} />
               </Link>
@@ -221,7 +402,7 @@ export default function AuthorDashboard() {
 
             <div className="royalty-total">
               <span>Total earned</span>
-              <h2>{currency(dashboardStats.totalEarned)}</h2>
+              <h2>{loading ? "—" : currency(totalEarned)}</h2>
               <span className="royalty-total__caption">
                 Across all your titles
               </span>
@@ -234,15 +415,17 @@ export default function AuthorDashboard() {
                   <span>Paid to you</span>
                 </div>
                 <div className="royalty-row__value">
-                  <strong>{currency(dashboardStats.royaltyPaid)}</strong>
-                  <span className="royalty-row__percent">{paidPercent}%</span>
+                  <strong>{loading ? "—" : currency(royaltyPaid)}</strong>
+                  <span className="royalty-row__percent">
+                    {loading ? "—" : `${paidPercent}%`}
+                  </span>
                 </div>
               </div>
 
               <div className="royalty-bar">
                 <span
                   className="royalty-bar__paid"
-                  style={{ width: `${paidPercent}%` }}
+                  style={{ width: `${loading ? 0 : paidPercent}%` }}
                 />
               </div>
 
@@ -252,9 +435,9 @@ export default function AuthorDashboard() {
                   <span>Pending</span>
                 </div>
                 <div className="royalty-row__value">
-                  <strong>{currency(dashboardStats.royaltyPending)}</strong>
+                  <strong>{loading ? "—" : currency(royaltyPending)}</strong>
                   <span className="royalty-row__percent">
-                    {pendingPercent}%
+                    {loading ? "—" : `${pendingPercent}%`}
                   </span>
                 </div>
               </div>
@@ -262,7 +445,7 @@ export default function AuthorDashboard() {
               <div className="royalty-bar">
                 <span
                   className="royalty-bar__pending"
-                  style={{ width: `${pendingPercent}%` }}
+                  style={{ width: `${loading ? 0 : pendingPercent}%` }}
                 />
               </div>
             </div>
@@ -306,47 +489,69 @@ export default function AuthorDashboard() {
               </thead>
 
               <tbody>
-                {tickets.map((ticket) => (
-                  <tr key={ticket.id}>
-                    <td>
-                      <div className="ticket-cell">
-                        <strong>{ticket.subject}</strong>
-                        <span>{ticket.id}</span>
-                      </div>
-                    </td>
-
-                    <td className="muted-cell">{ticket.category}</td>
-
-                    <td>
-                      <span
-                        className={`priority-badge priority-badge--${priorityClass[ticket.priority]}`}
-                      >
-                        {ticket.priority}
-                      </span>
-                    </td>
-
-                    <td>
-                      <span
-                        className={`status-badge status-badge--${statusClass[ticket.status]}`}
-                      >
-                        <span />
-                        {ticket.status}
-                      </span>
-                    </td>
-
-                    <td className="muted-cell">{ticket.updatedAt}</td>
-
-                    <td style={{ textAlign: "right" }}>
-                      <Link
-                        to={`/author/tickets/${ticket.id}`}
-                        className="review-btn"
-                        aria-label={`View ${ticket.subject}`}
-                      >
-                        View →
-                      </Link>
+                {loading ? (
+                  <tr>
+                    <td colSpan={6}>Loading your tickets...</td>
+                  </tr>
+                ) : tickets.length === 0 ? (
+                  <tr>
+                    <td colSpan={6}>
+                      No support tickets yet. You can raise a ticket if you
+                      need help.
                     </td>
                   </tr>
-                ))}
+                ) : (
+                  tickets.slice(0, 5).map((ticket) => (
+                    <tr key={ticket._id}>
+                      <td>
+                        <div className="ticket-cell">
+                          <strong>{ticket.subject}</strong>
+                          <span>{ticket._id}</span>
+                        </div>
+                      </td>
+
+                      <td className="muted-cell">
+                        {ticket.category || "General Inquiry"}
+                      </td>
+
+                      <td>
+                        <span
+                          className={`priority-badge priority-badge--${
+                            priorityClass[ticket.priority || "Medium"] ||
+                            "medium"
+                          }`}
+                        >
+                          {ticket.priority || "Medium"}
+                        </span>
+                      </td>
+
+                      <td>
+                        <span
+                          className={`status-badge status-badge--${
+                            statusClass[ticket.status] || "open"
+                          }`}
+                        >
+                          <span />
+                          {ticket.status}
+                        </span>
+                      </td>
+
+                      <td className="muted-cell">
+                        {formatDate(ticket.updatedAt)}
+                      </td>
+
+                      <td style={{ textAlign: "right" }}>
+                        <Link
+                          to={`/author/tickets/${ticket._id}`}
+                          className="review-btn"
+                          aria-label={`View ${ticket.subject}`}
+                        >
+                          View →
+                        </Link>
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>
@@ -360,7 +565,7 @@ export default function AuthorDashboard() {
             <div>
               <span>Total copies sold</span>
               <strong>
-                {dashboardStats.totalCopiesSold.toLocaleString("en-IN")}
+                {loading ? "—" : totalCopiesSold.toLocaleString("en-IN")}
               </strong>
             </div>
           </div>

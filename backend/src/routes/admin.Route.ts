@@ -6,6 +6,8 @@ import {
   updateTicket,
   addInternalNote,
   sendTicketReply,
+  getAdminTicketMessages,
+  getAdminTicketNotes,
 } from "../controllers/admin.Controller.js";
 import {
   authenticate,
@@ -20,6 +22,8 @@ router.use(authenticate, authorize("admin"));
 
 router.get("/tickets", getAllTickets);
 router.get("/tickets/:ticketId", getAdminTicketById);
+router.get("/tickets/:ticketId/messages",getAdminTicketMessages);
+router.get("/tickets/:ticketId/notes",getAdminTicketNotes);
 router.patch("/tickets/:ticketId", updateTicket);
 router.post("/tickets/:ticketId/notes", addInternalNote);
 router.post("/tickets/:ticketId/reply", sendTicketReply);

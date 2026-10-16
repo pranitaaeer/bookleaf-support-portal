@@ -4,8 +4,6 @@ import bcrypt from "bcryptjs";
 import Author from "../models/Author.model.js";
 import User from "../models/Admin.model.js";
 import {createToken} from "../utils/authfun.js"
-import dotenv from "dotenv";
-dotenv.config();
 
 // POST /api/auth/register
 export async function registerAuthor(req: Request, res: Response) {

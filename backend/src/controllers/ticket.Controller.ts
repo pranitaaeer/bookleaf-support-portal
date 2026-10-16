@@ -9,6 +9,7 @@ import Author from "../models/Author.model.js";
 // POST /api/tickets
 export async function createTicket(req: Request, res: Response) {
   try {
+
     const authorId = req.user?.id;
     const { bookId, subject, description, attachmentName } = req.body;
 
@@ -121,7 +122,6 @@ export async function createTicket(req: Request, res: Response) {
 export async function getMyTickets(req: Request, res: Response) {
   try {
     const authorId = req.user?.id;
-
     if (!authorId) {
       return res.status(401).json({
         success: false,

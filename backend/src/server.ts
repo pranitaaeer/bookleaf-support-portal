@@ -1,15 +1,18 @@
+import "dotenv/config";
 import express, { Request, Response } from "express";
 import cors from "cors";
-import dotenv from "dotenv";
 import ConnectDB from "./config/db.js";
-
-dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
 ConnectDB()
-app.use(cors());
+app.use(cors({
+  origin: process.env.VITE_FRONTEND_URL || "http://localhost:5173",
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  credentials: true,
+}));
 app.use(express.json());
 
 app.get("/api/health", (_req: Request, res: Response) => {

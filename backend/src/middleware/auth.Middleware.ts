@@ -14,8 +14,6 @@ export function authenticate(
 ) {
   try {
     const authHeader = req.headers.authorization;
-
-    // Token must be sent as: Authorization: Bearer <token>
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
       return res.status(401).json({
         success: false,
@@ -25,7 +23,7 @@ export function authenticate(
 
     const token = authHeader.split(" ")[1];
     const secret = process.env.JWT_SECRET;
-
+;
     if (!token || !secret) {
       return res.status(401).json({
         success: false,
@@ -34,7 +32,6 @@ export function authenticate(
     }
 
     const decoded = jwt.verify(token, secret);
-
     if (
       typeof decoded === "string" ||
       typeof decoded.id !== "string" ||
