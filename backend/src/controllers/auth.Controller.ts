@@ -4,7 +4,8 @@ import bcrypt from "bcryptjs";
 import Author from "../models/Author.model.js";
 import User from "../models/Admin.model.js";
 import {createToken} from "../utils/authfun.js"
-
+import dotenv from "dotenv";
+dotenv.config();
 
 // POST /api/auth/register
 export async function registerAuthor(req: Request, res: Response) {
@@ -197,4 +198,73 @@ export async function login(req: Request, res: Response) {
   }
 }
 
+export async function registerAdmin(req: Request, res: Response) {
+  try {
+    const setupKey = req.headers["x-admin-setup-key"];
+    const expectedKey = process.env.ADMIN_SETUP_KEY;
 
+    if (!expectedKey || setupKey !== expectedKey) {
+      return res.status(403).json({
+        success: false,
+        message: "Admin setup not authorized.",
+      });
+    }
+
+    const { name, email, password } = req.body;
+
+    if (
+      typeof name !== "string" ||
+      typeof email !== "string" ||
+      typeof password !== "string" ||
+      !name.trim() ||
+      !email.trim() ||
+      password.length < 8
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "Name, valid email and password (minimum 8 characters) are required.",
+      });
+    }
+
+    const normalizedEmail = email.trim().toLowerCase();
+
+    const existingAdmin = await User.findOne({
+      email: normalizedEmail,
+    });
+
+    if (existingAdmin) {
+      return res.status(409).json({
+        success: false,
+        message: "An account with this email already exists.",
+      });
+    }
+
+    const passwordHash = await bcrypt.hash(password, 12);
+
+    const admin = await User.create({
+      name: name.trim(),
+      email: normalizedEmail,
+      passwordHash,
+      role: "admin",
+      isActive: true,
+    });
+
+    return res.status(201).json({
+      success: true,
+      message: "Admin created successfully.",
+      data: {
+        id: admin._id,
+        name: admin.name,
+        email: admin.email,
+        role: admin.role,
+      },
+    });
+  } catch (error) {
+    console.error("Register admin error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Unable to create admin.",
+    });
+  }
+}
