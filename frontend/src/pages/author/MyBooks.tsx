@@ -1,63 +1,106 @@
 
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import DashboardLayout from "../../components/layout/DashboardLayout";
-// import { books } from "../../data/dashboardData";
+import api from "../../services/api";
+
+interface BookItem {
+  _id: string;
+  bookId?: string;
+  title: string;
+  genre?: string;
+  isbn?: string | null;
+  publicationDate?: string | null;
+  status: string;
+  mrp?: number | null;
+  totalCopiesSold?: number;
+  totalRoyaltyEarned?: number;
+  royaltyPaid?: number;
+  royaltyPending?: number;
+}
+
+interface ApiResponse<T> {
+  success: boolean;
+  message?: string;
+  count?: number;
+  data: T;
+}
 
 export default function MyBooks() {
-    const books = [
-  {
-    id: "BK001",
-    title: "The Art of Starting Over",
-    genre: "Self-Help",
-    isbn: "9780000001001",
-    publicationDate: "15 Jun 2026",
-    status: "Published",
-    mrp: 399,
-    copiesSold: 420,
-    royaltyEarned: 16800,
-    royaltyPaid: 12000,
-    royaltyPending: 4800,
-  },
-  {
-    id: "BK002",
-    title: "Whispers of the Monsoon",
-    genre: "Fiction",
-    isbn: "9780000001002",
-    publicationDate: "20 Jul 2026",
-    status: "Published",
-    mrp: 299,
-    copiesSold: 315,
-    royaltyEarned: 12600,
-    royaltyPaid: 9000,
-    royaltyPending: 3600,
-  },
-  {
-    id: "BK003",
-    title: "The Quiet Revolution",
-    genre: "Non-Fiction",
-    isbn: "9780000001003",
-    publicationDate: "05 Aug 2026",
-    status: "Published",
-    mrp: 349,
-    copiesSold: 280,
-    royaltyEarned: 11200,
-    royaltyPaid: 7000,
-    royaltyPending: 4200,
-  },
-  {
-    id: "BK004",
-    title: "Letters to My Younger Self",
-    genre: "Memoir",
-    isbn: null,
-    publicationDate: null,
-    status: "In Production",
-    mrp: null,
-    copiesSold: 0,
-    royaltyEarned: 0,
-    royaltyPaid: 0,
-    royaltyPending: 0,
-  },
-];
+  const [books, setBooks] = useState<BookItem[]>([]);
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    const fetchBooks = async () => {
+      try {
+        setLoading(true);
+        setError("");
+
+        const response = await api.get<ApiResponse<BookItem[]>>(
+          "/book/get-books"
+        );
+
+        if (!response.data.success) {
+          throw new Error(response.data.message || "Unable to fetch books.");
+        }
+
+        setBooks(response.data.data ?? []);
+      } catch (err: unknown) {
+        const message =
+          err instanceof Error
+            ? err.message
+            : "Unable to load your books. Please try again.";
+
+        setError(message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    void fetchBooks();
+  }, []);
+
+  const filteredBooks = useMemo(() => {
+    const query = search.trim().toLowerCase();
+
+    return books.filter((book) => {
+      const matchesSearch =
+        !query ||
+        book.title.toLowerCase().includes(query) ||
+        (book.isbn ?? "").toLowerCase().includes(query) ||
+        (book.bookId ?? "").toLowerCase().includes(query);
+
+      const matchesStatus =
+        statusFilter === "all" ||
+        book.status.toLowerCase() === statusFilter.toLowerCase();
+
+      return matchesSearch && matchesStatus;
+    });
+  }, [books, search, statusFilter]);
+
+  const formatDate = (date?: string | null) => {
+    if (!date) return "—";
+
+    const parsedDate = new Date(date);
+
+    if (Number.isNaN(parsedDate.getTime())) return "—";
+
+    return parsedDate.toLocaleDateString("en-IN", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    });
+  };
+
+  const formatCurrency = (amount?: number | null) => {
+    if (amount == null) return "—";
+
+    return `₹${amount.toLocaleString("en-IN")}`;
+  };
+
   return (
     <DashboardLayout>
       <main className="portal-page">
@@ -70,8 +113,18 @@ export default function MyBooks() {
 
         <section className="panel">
           <div className="toolbar">
-            <input aria-label="Search books" placeholder="Search by title or ISBN..." />
-            <select aria-label="Filter by status" defaultValue="all">
+            <input
+              aria-label="Search books"
+              placeholder="Search by title, ISBN, or book ID..."
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+            />
+
+            <select
+              aria-label="Filter by status"
+              value={statusFilter}
+              onChange={(event) => setStatusFilter(event.target.value)}
+            >
               <option value="all">All statuses</option>
               <option value="Published">Published</option>
               <option value="In Production">In Production</option>
@@ -79,44 +132,85 @@ export default function MyBooks() {
             </select>
           </div>
 
-          <div className="table-wrap">
-            <table className="portal-table">
-              <thead>
-                <tr>
-                  <th>Book</th>
-                  <th>Genre</th>
-                  <th>ISBN</th>
-                  <th>Published</th>
-                  <th>Status</th>
-                  <th>MRP</th>
-                  <th>Copies sold</th>
-                  <th>Royalty earned</th>
-                  <th>Paid</th>
-                  <th>Pending</th>
-                </tr>
-              </thead>
-              <tbody>
-                {books.map((book) => (
-                  <tr key={book.id}>
-                    <td>{book.title}</td>
-                    <td>{book.genre}</td>
-                    <td>{book.isbn ?? "—"}</td>
-                    <td>{book.publicationDate ?? "—"}</td>
-                    <td><span className="status-pill">{book.status}</span></td>
-                    <td>{book.mrp == null ? "—" : `₹${book.mrp}`}</td>
-                    <td>{book.copiesSold.toLocaleString("en-IN")}</td>
-                    <td>₹{book.royaltyEarned.toLocaleString("en-IN")}</td>
-                    <td>₹{book.royaltyPaid.toLocaleString("en-IN")}</td>
-                    <td>₹{book.royaltyPending.toLocaleString("en-IN")}</td>
+          {loading ? (
+            <p className="muted">Loading your books...</p>
+          ) : error ? (
+            <div>
+              <p role="alert">{error}</p>
+              <button
+                type="button"
+                className="secondary-btn"
+                onClick={() => window.location.reload()}
+              >
+                Retry
+              </button>
+            </div>
+          ) : filteredBooks.length === 0 ? (
+            <p className="muted">
+              {books.length === 0
+                ? "You haven't added any books yet."
+                : "No books match your search or selected status."}
+            </p>
+          ) : (
+            <div className="table-wrap">
+              <table className="portal-table">
+                <thead>
+                  <tr>
+                    <th>Book</th>
+                    <th>Genre</th>
+                    <th>ISBN</th>
+                    <th>Published</th>
+                    <th>Status</th>
+                    <th>MRP</th>
+                    <th>Copies sold</th>
+                    <th>Royalty earned</th>
+                    <th>Paid</th>
+                    <th>Pending</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          <p className="muted">Showing demo data. Book details will come from the API later.</p>
-          <Link className="secondary-btn" to="/author/tickets/new">Need help with a book?</Link>
+                </thead>
+
+                <tbody>
+                  {filteredBooks.map((book) => (
+                    <tr key={book._id}>
+                      <td>
+                        <Link to={`/author/books/${book.bookId ?? book._id}`}>
+                          {book.title}
+                        </Link>
+                      </td>
+                      <td>{book.genre || "—"}</td>
+                      <td>{book.isbn || "—"}</td>
+                      <td>{formatDate(book.publicationDate)}</td>
+                      <td>
+                        <span className="status-pill">{book.status}</span>
+                      </td>
+                      <td>{formatCurrency(book.mrp)}</td>
+                      <td>
+                        {(book.totalCopiesSold ?? 0).toLocaleString("en-IN")}
+                      </td>
+                      <td>
+                        {formatCurrency(book.totalRoyaltyEarned ?? 0)}
+                      </td>
+                      <td>{formatCurrency(book.royaltyPaid ?? 0)}</td>
+                      <td>{formatCurrency(book.royaltyPending ?? 0)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          {!loading && !error && (
+            <p className="muted">
+              Showing {filteredBooks.length} of {books.length} books.
+            </p>
+          )}
+
+          <Link className="secondary-btn" to="/author/tickets/new">
+            Need help with a book?
+          </Link>
         </section>
       </main>
     </DashboardLayout>
   );
 }
+

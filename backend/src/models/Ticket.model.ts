@@ -49,10 +49,24 @@ const ticketSchema = new Schema(
       trim: true,
       maxlength: 10000,
     },
+    
     attachmentName: {
       type: String,
-      default: null,
+      trim: true,
     },
+    attachmentUrl: {
+      type: String,
+    },
+    attachmentKey: {
+      type: String,
+    },
+    attachmentMimeType: {
+      type: String,
+    },
+    attachmentSize: {
+      type: Number,
+    },
+
 
     category: {
       type: String,

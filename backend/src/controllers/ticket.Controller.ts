@@ -5,21 +5,27 @@ import Ticket from "../models/Ticket.model.js";
 import TicketMessage from "../models/TicketMessage.model.js";
 import { classifyTicket } from "../services/aiService.js";
 import Author from "../models/Author.model.js";
+import { UTFile } from "uploadthing/server";
+import { utapi } from "../services/uploadthing.js";
 
 // POST /api/tickets
 export async function createTicket(req: Request, res: Response) {
+  let uploadedAttachmentKey: string | null = null;
+
   try {
-
     const authorId = req.user?.id;
-    const { bookId, subject, description, attachmentName } = req.body;
+    const { bookId, subject, description } = req.body;
+    const file = req.file;
 
+    // 1. Authentication
     if (!authorId) {
       return res.status(401).json({
         success: false,
         message: "Authentication required.",
       });
     }
-    const author = await Author.findOne({ _id: authorId });
+
+    const author = await Author.findById(authorId);
 
     if (!author) {
       return res.status(404).json({
@@ -28,7 +34,7 @@ export async function createTicket(req: Request, res: Response) {
       });
     }
 
-    const authorObjectId = author._id;
+    // 2. Validate subject and description
     if (
       typeof subject !== "string" ||
       !subject.trim() ||
@@ -41,14 +47,19 @@ export async function createTicket(req: Request, res: Response) {
       });
     }
 
-    if (subject.trim().length > 200 || description.trim().length > 10000) {
+    if (
+      subject.trim().length > 200 ||
+      description.trim().length > 10000
+    ) {
       return res.status(400).json({
         success: false,
         message: "Subject or description exceeds the allowed length.",
       });
     }
 
+    // 3. Validate book ownership
     let validBookObjectId = null;
+
     if (bookId !== undefined && bookId !== null && bookId !== "") {
       if (typeof bookId !== "string" || !bookId.trim()) {
         return res.status(400).json({
@@ -57,34 +68,85 @@ export async function createTicket(req: Request, res: Response) {
         });
       }
 
-      // BK015 is the sample-data business ID, not MongoDB _id.
+      // Example: BK015 is the business ID, not MongoDB _id.
       const book = await Book.findOne({
         bookId: bookId.trim(),
-        author: authorObjectId,
+        author: author._id,
       });
 
       if (!book) {
         return res.status(404).json({
           success: false,
-          message: `Book not found in ${authorId}'s account.`,
+          message: "Book not found in your account.",
         });
       }
 
       validBookObjectId = book._id;
     }
 
-    // Ask Groq AI to classify the ticket and suggest its priority.
-    // If AI fails, the ticket can still be created.
-    const aiResult = await classifyTicket(subject.trim(), description.trim());
+    // 4. Upload attachment to UploadThing
+    let uploadedAttachment: {
+      name: string;
+      key: string;
+      url: string;
+      size: number;
+      mimeType: string;
+    } | null = null;
 
+    if (file) {
+      const utFile = new UTFile(
+        [new Uint8Array(file.buffer)],
+        file.originalname,
+        { type: file.mimetype }
+      );
+
+      const uploadResult = await utapi.uploadFiles(utFile);
+
+      const result = Array.isArray(uploadResult)
+        ? uploadResult[0]
+        : uploadResult;
+
+      if (result.error || !result.data) {
+        console.error(
+          "UploadThing upload failed:",
+          result.error
+        );
+
+        return res.status(502).json({
+          success: false,
+          message: "Attachment upload failed. Please try again.",
+        });
+      }
+
+      uploadedAttachmentKey = result.data.key;
+
+      uploadedAttachment = {
+        name: result.data.name,
+        key: result.data.key,
+        url: result.data.url,
+        size: result.data.size,
+        mimeType: file.mimetype,
+      };
+    }
+
+    // 5. AI classification
+    const aiResult = await classifyTicket(
+      subject.trim(),
+      description.trim()
+    );
+
+    // 6. Create ticket in MongoDB
     const ticket = await Ticket.create({
-      author: authorId,
+      author: author._id,
       book: validBookObjectId,
       subject: subject.trim(),
       description: description.trim(),
 
-      attachmentName:
-        typeof attachmentName === "string" ? attachmentName.trim() : undefined,
+      attachmentName: uploadedAttachment?.name,
+      attachmentUrl: uploadedAttachment?.url,
+      attachmentKey: uploadedAttachment?.key,
+      attachmentMimeType: uploadedAttachment?.mimeType,
+      attachmentSize: uploadedAttachment?.size,
 
       category: aiResult?.category ?? "General Inquiry",
       aiSuggestedCategory: aiResult?.category ?? null,
@@ -97,6 +159,9 @@ export async function createTicket(req: Request, res: Response) {
       status: "Open",
     });
 
+    // Ticket is saved; no upload cleanup is needed.
+    uploadedAttachmentKey = null;
+
     return res.status(201).json({
       success: true,
       message: aiResult
@@ -104,12 +169,24 @@ export async function createTicket(req: Request, res: Response) {
         : "Ticket created. AI classification is temporarily unavailable.",
       data: ticket,
       ai: {
-        available: aiResult !== null,
+        available: Boolean(aiResult),
         reason: aiResult?.reason ?? null,
       },
     });
   } catch (error) {
     console.error("Create ticket error:", error);
+
+    // Clean up the uploaded file if ticket creation failed.
+    if (uploadedAttachmentKey) {
+      try {
+        await utapi.deleteFiles(uploadedAttachmentKey);
+      } catch (cleanupError) {
+        console.error(
+          "UploadThing cleanup failed:",
+          cleanupError
+        );
+      }
+    }
 
     return res.status(500).json({
       success: false,

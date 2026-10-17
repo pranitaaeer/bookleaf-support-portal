@@ -17,7 +17,7 @@ export async function getMyBooks(req: Request, res: Response) {
 
     const books = await Book.find({ author: authorId })
       .select(
-        "title isbn genre publicationDate status mrp totalCopiesSold totalRoyaltyEarned royaltyPaid royaltyPending distributionDetails"
+        " bookId title isbn genre publicationDate status mrp totalCopiesSold totalRoyaltyEarned royaltyPaid royaltyPending distributionDetails"
       )
       .sort({ createdAt: -1 })
       .lean();
