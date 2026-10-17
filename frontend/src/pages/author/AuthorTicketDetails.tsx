@@ -1,64 +1,4 @@
 
-// import { Link, useParams } from "react-router-dom";
-// import DashboardLayout from "../../components/layout/DashboardLayout";
-// import { useState } from "react";
-
-// export default function AuthorTicketDetails() {
-//   const { ticketId } = useParams();
-//   const [reply, setReply] = useState("");
-
-//   function sendReply(event: React.FormEvent<HTMLFormElement>) {
-//     event.preventDefault();
-//     window.alert("Demo only: reply backend par save nahi hua.");
-//     setReply("");
-//   }
-
-//   return (
-//     <DashboardLayout>
-//       <main className="portal-page">
-//         <div className="page-heading">
-//           <div>
-//             <p><Link to="/author/tickets">← Back to My Tickets</Link></p>
-//             <h1>Pending royalty payment</h1>
-//             <p>{ticketId} · Royalty &amp; Payments · Created 12 Oct 2026</p>
-//           </div>
-//           <span className="status-pill">In Progress</span>
-//         </div>
-
-//         <section className="panel">
-//           <h2>Conversation</h2>
-//           <article className="message">
-//             <strong>Your original query</strong>
-//             <p className="muted">12 Oct 2026 · You</p>
-//             <p>I have not received the royalty payment for my latest sales. Could you please check the payment status?</p>
-//           </article>
-
-//           <article className="message">
-//             <strong>Publishing Support</strong>
-//             <p className="muted">12 Oct 2026 · Admin reply</p>
-//             <p>Thank you for contacting us. We are checking the payment records for your book and will update you here.</p>
-//           </article>
-//         </section>
-
-//         <section className="panel">
-//           <h2>Send a reply</h2>
-//           <form onSubmit={sendReply}>
-//             <div className="field">
-//               <label htmlFor="reply">Your message</label>
-//               <textarea id="reply" required minLength={2}
-//                 value={reply} onChange={(e) => setReply(e.target.value)}
-//                 placeholder="Write a message..." />
-//             </div>
-//             <button className="primary-btn" type="submit" style={{ marginTop: 16 }}>
-//               Send reply
-//             </button>
-//           </form>
-//         </section>
-//       </main>
-//     </DashboardLayout>
-//   );
-// }
-
 import { Link, useParams } from "react-router-dom";
 import DashboardLayout from "../../components/layout/DashboardLayout";
 import { useState, useEffect } from "react";
@@ -94,10 +34,8 @@ const formatDate = (dateString?: string) => {
 export default function AuthorTicketDetails() {
   const { ticketId } = useParams();
   
-  const [reply, setReply] = useState("");
   const [ticket, setTicket] = useState<TicketDetails | null>(null);
   const [loading, setLoading] = useState(true);
-  const [submitting, setSubmitting] = useState(false);
 
   // 1. Fetch Ticket Details
   useEffect(() => {
@@ -123,27 +61,7 @@ export default function AuthorTicketDetails() {
   }, [ticketId]);
 
   // 2. Submit Reply
-  async function sendReply(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    if (!reply.trim() || submitting) return;
-
-    try {
-      setSubmitting(true);
-      await api.post(`/tickets/${ticketId}/reply`, { message: reply.trim() });
-      
-      toast.success("Reply sent successfully!");
-      setReply("");
-      
-      // Re-fetch details to show the new message
-      const response = await api.get(`/tickets/${ticketId}`);
-      setTicket(response.data.data);
-
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || "Failed to send reply.");
-    } finally {
-      setSubmitting(false);
-    }
-  }
+  
 
   if (loading) {
     return (
@@ -210,26 +128,7 @@ export default function AuthorTicketDetails() {
           )}
         </section>
 
-        <section className="panel">
-          <h2>Send a reply</h2>
-          <form onSubmit={sendReply}>
-            <div className="field">
-              <label htmlFor="reply">Your message</label>
-              <textarea 
-                id="reply" 
-                required 
-                minLength={2}
-                value={reply} 
-                onChange={(e) => setReply(e.target.value)}
-                placeholder="Write a message..." 
-                disabled={submitting}
-              />
-            </div>
-            <button className="primary-btn" type="submit" style={{ marginTop: 16 }} disabled={submitting}>
-              {submitting ? "Sending..." : "Send reply"}
-            </button>
-          </form>
-        </section>
+        
       </main>
     </DashboardLayout>
   );
