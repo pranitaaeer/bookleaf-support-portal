@@ -195,7 +195,7 @@ export async function login(req: Request, res: Response) {
     });
   }
 }
-
+// POST /api/auth/register-admin
 export async function registerAdmin(req: Request, res: Response) {
   try {
     const setupKey = req.headers["x-admin-setup-key"];
@@ -263,6 +263,77 @@ export async function registerAdmin(req: Request, res: Response) {
     return res.status(500).json({
       success: false,
       message: "Unable to create admin.",
+    });
+  }
+}
+// GET /api/auth/me
+export async function getMyInfo(req: Request, res: Response) {
+  try {
+    const userId = req.user?.id;
+    const role = req.user?.role;
+
+    if (
+      !userId ||
+      (role !== "admin" && role !== "author")
+    ) {
+      return res.status(401).json({
+        success: false,
+        message: "Authentication required.",
+      });
+    }
+
+    if (role === "author") {
+      const author = await Author.findOne({
+        _id: userId,
+        isActive: true,
+      }).select("name email authorId");
+
+      if (!author) {
+        return res.status(404).json({
+          success: false,
+          message: "Author not found or inactive.",
+        });
+      }
+
+      return res.status(200).json({
+        success: true,
+        user: {
+          id: author.id,
+          name: author.name,
+          email: author.email,
+          role: "author",
+        },
+      });
+    }
+
+    const admin = await User.findOne({
+      _id: userId,
+      role: "admin",
+      isActive: true,
+    }).select("name email role");
+
+    if (!admin) {
+      return res.status(404).json({
+        success: false,
+        message: "Admin not found or inactive.",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      user: {
+        id: admin.id,
+        name: admin.name,
+        email: admin.email,
+        role: "admin",
+      },
+    });
+  } catch (error) {
+    console.error("Get current user error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Unable to fetch user information.",
     });
   }
 }

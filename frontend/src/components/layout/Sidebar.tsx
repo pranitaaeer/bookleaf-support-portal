@@ -44,12 +44,7 @@ const adminNavigation = [
     label: "All Tickets",
     icon: ClipboardList,
     path: "/admin/tickets",
-  },
-  {
-    label: "Manage Tickets",
-    icon: PlusCircle,
-    path: "/admin/tickets/manage",
-  },
+  }
 ];
 
 export default function Sidebar({ open, onClose }: SidebarProps) {

@@ -1,6 +1,5 @@
-
 import { Link } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import DashboardLayout from "../../components/layout/DashboardLayout";
 import api from "../../services/api";
 
@@ -31,6 +30,21 @@ const categories = [
 
 const priorities = ["Critical", "High", "Medium", "Low"];
 const statuses = ["Open", "In Progress", "Resolved", "Closed"];
+
+const unresolvedStatuses = ["Open", "In Progress"];
+
+function getPriorityClass(priority: string) {
+  switch (priority) {
+    case "Critical":
+      return "priority-critical";
+    case "High":
+      return "priority-high";
+    case "Medium":
+      return "priority-medium";
+    default:
+      return "priority-low";
+  }
+}
 
 export default function AdminTickets() {
   const [status, setStatus] = useState("All");
@@ -74,13 +88,12 @@ export default function AdminTickets() {
         });
 
         if (!cancelled) {
-          setTickets(response.data.data);
+          setTickets(response.data.data ?? []);
         }
       } catch (err: any) {
         if (!cancelled) {
           setError(
-            err.response?.data?.message ||
-              "Unable to load support tickets."
+            err.response?.data?.message || "Unable to load support tickets.",
           );
           setTickets([]);
         }
@@ -96,16 +109,66 @@ export default function AdminTickets() {
     };
   }, [status, category, priority, from, to, reloadKey, invalidDateRange]);
 
+  // Show unresolved tickets first, oldest ticket first within each group.
+  const sortedTickets = useMemo(() => {
+    return [...tickets].sort((a, b) => {
+      const aUnresolved = unresolvedStatuses.includes(a.status);
+      const bUnresolved = unresolvedStatuses.includes(b.status);
+
+      if (aUnresolved !== bUnresolved) {
+        return aUnresolved ? -1 : 1;
+      }
+
+      // Within unresolved tickets, Critical and High priorities come first.
+      if (aUnresolved && bUnresolved) {
+        const priorityRank: Record<string, number> = {
+          Critical: 0,
+          High: 1,
+          Medium: 2,
+          Low: 3,
+        };
+
+        const priorityDifference =
+          (priorityRank[a.priority] ?? 4) - (priorityRank[b.priority] ?? 4);
+
+        if (priorityDifference !== 0) {
+          return priorityDifference;
+        }
+      }
+
+      // Oldest first for tickets with the same grouping/priority.
+      return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+    });
+  }, [tickets]);
+
+  const oldestUnresolvedId = useMemo(() => {
+    const unresolved = tickets
+      .filter((ticket) => unresolvedStatuses.includes(ticket.status))
+      .sort(
+        (a, b) =>
+          new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
+      );
+
+    return unresolved[0]?._id;
+  }, [tickets]);
+
   return (
     <DashboardLayout>
       <main className="portal-page">
         <div className="page-heading">
           <div>
             <h1>Ticket Queue</h1>
-            <p>
-              Filter, prioritize, and manage author requests.
-            </p>
+            <p>Filter, prioritize, and manage author requests.</p>
           </div>
+        </div>
+        <div className="ai-classification-note">
+          <div className="ai-classification-title">
+            ✨ AI-Assisted Classification
+          </div>
+          <p>
+            AI automatically suggests ticket category and priority. Admins can
+            review and change them manually.
+          </p>
         </div>
 
         <section className="panel">
@@ -150,10 +213,7 @@ export default function AdminTickets() {
             </select>
           </div>
 
-          <div
-            className="toolbar"
-            style={{ marginTop: 16, alignItems: "end" }}
-          >
+          <div className="toolbar" style={{ marginTop: 16, alignItems: "end" }}>
             <div className="field">
               <label htmlFor="ticket-from-date">From Date</label>
               <input
@@ -203,9 +263,7 @@ export default function AdminTickets() {
             </div>
           ) : (
             <>
-              <p className="muted">
-                {tickets.length} ticket(s) found
-              </p>
+              <p className="muted">{sortedTickets.length} ticket(s) found</p>
 
               <div className="table-wrap">
                 <table className="portal-table">
@@ -221,48 +279,83 @@ export default function AdminTickets() {
                   </thead>
 
                   <tbody>
-                    {tickets.map((ticket) => (
-                      <tr key={ticket._id}>
-                        <td>
-                          <strong>{ticket.subject}</strong>
-                          <br />
-                          <span className="muted">{ticket._id}</span>
-                        </td>
+                    {sortedTickets.map((ticket) => {
+                      const isUnresolved = unresolvedStatuses.includes(
+                        ticket.status,
+                      );
+                      const isUrgent = ["Critical", "High"].includes(
+                        ticket.priority,
+                      );
+                      const isOldest = ticket._id === oldestUnresolvedId;
 
-                        <td>{ticket.category}</td>
+                      return (
+                        <tr
+                          key={ticket._id}
+                          className={[
+                            isUrgent ? "urgent-ticket-row" : "",
+                            isOldest ? "oldest-ticket-row" : "",
+                          ]
+                            .filter(Boolean)
+                            .join(" ")}
+                        >
+                          <td>
+                            <strong>{ticket.subject}</strong>
+                            <br />
+                            <span className="muted">{ticket._id}</span>
+                            <br />
 
-                        <td>
-                          <span className="status-pill">
-                            {ticket.status}
-                          </span>
-                        </td>
+                            {isOldest && (
+                              <span className="ticket-badge badge-oldest">
+                                Oldest unresolved
+                              </span>
+                            )}
 
-                        <td>{ticket.priority}</td>
+                            {isUnresolved && isUrgent && (
+                              <span className="ticket-badge badge-urgent">
+                                {ticket.priority} priority
+                              </span>
+                            )}
+                          </td>
 
-                        <td>
-                          {new Date(ticket.createdAt).toLocaleDateString(
-                            "en-IN",
-                            {
-                              day: "2-digit",
-                              month: "short",
-                              year: "numeric",
-                            }
-                          )}
-                        </td>
+                          <td>{ticket.category}</td>
 
-                        <td>
-                          <Link to={`/admin/tickets/${ticket._id}`}>
-                            Open →
-                          </Link>
-                        </td>
-                      </tr>
-                    ))}
+                          <td>
+                            <span className="status-pill">{ticket.status}</span>
+                          </td>
 
-                    {tickets.length === 0 && (
+                          <td>
+                            <span
+                              className={`ticket-badge ${getPriorityClass(
+                                ticket.priority,
+                              )}`}
+                            >
+                              {ticket.priority}
+                            </span>
+                          </td>
+
+                          <td>
+                            {new Date(ticket.createdAt).toLocaleDateString(
+                              "en-IN",
+                              {
+                                day: "2-digit",
+                                month: "short",
+                                year: "numeric",
+                              },
+                            )}
+                          </td>
+
+                          <td>
+                            <Link to={`/admin/tickets/${ticket._id}`}>
+                              Open →
+                            </Link>
+                          </td>
+                        </tr>
+                      );
+                    })}
+
+                    {sortedTickets.length === 0 && (
                       <tr>
-                        <td colSpan={6}>
-                          No tickets match these filters.
-                        </td>
+                        <td colSpan={6}>No tickets match these filters.</td>
                       </tr>
                     )}
                   </tbody>
