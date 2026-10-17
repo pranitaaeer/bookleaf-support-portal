@@ -128,10 +128,7 @@ async function seedDatabase() {
       }
     }
 
-    console.log("Seed completed successfully.");
-    console.log(`Authors processed: ${authorsProcessed}`);
-    console.log(`Books processed: ${booksProcessed}`);
-    console.log("Collections: authors and books");
+    
   } finally {
     await mongoose.disconnect();
   }

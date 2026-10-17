@@ -297,17 +297,10 @@ export async function getMyTicketById(req: Request, res: Response) {
     const authorId = req.user?.id;
     const ticketId = req.params.ticketId;
  
-     console.log("🔍 Checking Ticket ID:", ticketId);
-    console.log("🔍 Logged in Author ID:", authorId);
-
     
     // 👇 YE BHI ADD KAREIN
     const directTicket = await Ticket.findById(ticketId);
-    console.log("🔍 Direct Ticket found in DB?:", !!directTicket);
-    if (directTicket) {
-       console.log("🔍 Ticket's actual Author in DB:", directTicket.author);
-    }
-
+    
     if (!authorId) {
       return res.status(401).json({
         success: false,
