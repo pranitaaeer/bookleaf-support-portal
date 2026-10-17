@@ -44,7 +44,7 @@ const adminNavigation = [
     label: "All Tickets",
     icon: ClipboardList,
     path: "/admin/tickets",
-  }
+  },
 ];
 
 export default function Sidebar({ open, onClose }: SidebarProps) {
@@ -54,16 +54,26 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
   const isAdmin = location.pathname.startsWith("/admin");
   const navigation = isAdmin ? adminNavigation : authorNavigation;
 
-  // Exact match only — ensures /admin/tickets and /admin/tickets/manage
-  // don't highlight each other, and /author/tickets vs /author/tickets/new
-  // stay independent too.
   const isActive = (path: string) => location.pathname === path;
 
-  function handleLogout() {
-    // Demo UI only. Real logout backend authentication ke baad.
-    navigate("/login");
-    onClose();
-  }
+  const handleLogout = () => {
+    // Clear authentication data from both storage locations
+    const authKeys = [
+      "token",
+      "accessToken",
+      "authToken",
+      "user",
+      "isLoggedIn",
+    ];
+
+    authKeys.forEach((key) => {
+      localStorage.removeItem(key);
+      sessionStorage.removeItem(key);
+    });
+
+    // Redirect to login and prevent returning to the dashboard via history
+    navigate("/login", { replace: true });
+  };
 
   return (
     <>
@@ -123,9 +133,7 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
             <Link
               to="/author/tickets/new"
               className={`sidebar__link ${
-                isActive("/author/tickets/new")
-                  ? "sidebar__link--active"
-                  : ""
+                isActive("/author/tickets/new") ? "sidebar__link--active" : ""
               }`}
               onClick={onClose}
             >
@@ -163,9 +171,7 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
             <Link
               to="/author/settings"
               className={`sidebar__link ${
-                isActive("/author/settings")
-                  ? "sidebar__link--active"
-                  : ""
+                isActive("/author/settings") ? "sidebar__link--active" : ""
               }`}
               onClick={onClose}
             >
@@ -183,9 +189,7 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
             <span>Sign out</span>
           </button>
 
-          <div className="sidebar__version">
-            BOOKLEAF PORTAL · V1.0
-          </div>
+          <div className="sidebar__version">BOOKLEAF PORTAL · V1.0</div>
         </div>
       </aside>
     </>

@@ -337,3 +337,27 @@ export async function getMyInfo(req: Request, res: Response) {
     });
   }
 }
+
+// POST /api/auth/logout
+export async function logout(req: Request, res: Response) {
+  try {
+    res.clearCookie("token", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/",
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Logged out successfully.",
+    });
+  } catch (error) {
+    console.error("Logout error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Unable to log out right now.",
+    });
+  }
+}
