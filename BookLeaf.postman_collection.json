@@ -1,0 +1,903 @@
+{
+  "info": {
+    "_postman_id": "ddcca056-45e8-4c0c-bcdd-506e3420859b",
+    "name": "BookLeaf",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "36152232"
+  },
+  "item": [
+    {
+      "name": "User",
+      "item": [
+        {
+          "name": "LOGIN",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"email\": \"aeerpranita@gmail.com\",\r\n  \"password\": \"12345678\"\r\n\r\n}\r\n\r\n// { Admin login data\r\n//     //  \"email\":\"admin@example.com\",\r\n// //  \"password\":\"admin@123\"\r\n// }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:5000/api/auth/login",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "REGISTER",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "name": "cache-control",
+                "sortOrder": 2,
+                "infoTitle": "We recommend using this header",
+                "info": "Postman added \"Cache-Control: no-cache\" as a precautionary measure to prevent the server from returning stale response when one makes repeated requests.\n\nYou can remove this header in the app settings or enter a new one with a different value.",
+                "allowedToToggle": false,
+                "disableEdit": true,
+                "previewSettingsLink": "Go to settings",
+                "key": "Cache-Control",
+                "value": "no-cache",
+                "system": true,
+                "type": "text"
+              },
+              {
+                "name": "postman-token",
+                "sortOrder": 3,
+                "infoTitle": "We recommend using this header",
+                "info": "The Postman-Token header appends a random UUID to every outgoing request. Postman adds this header for API developers to better debug requests sent and to ensure separate requests appear distinct to the receiving server.\n\nYou can remove this header in the app settings.",
+                "allowedToToggle": false,
+                "disableEdit": true,
+                "previewSettingsLink": "Go to settings",
+                "key": "Postman-Token",
+                "value": "<calculated when request is sent>",
+                "system": true,
+                "type": "text"
+              },
+              {
+                "name": "content-type",
+                "sortOrder": 4,
+                "infoTitle": "This header was automatically added",
+                "info": "The Content-Type header is added to help the server identify the media type of the request body that is present in this request.\n\nUse the request body tab to control the value or to remove this header.",
+                "allowedToToggle": true,
+                "disableEdit": true,
+                "previewSettingsLink": "Go to body",
+                "key": "Content-Type",
+                "value": "application/json",
+                "system": true,
+                "type": "text"
+              },
+              {
+                "name": "content-length",
+                "sortOrder": 5,
+                "infoTitle": "This header was automatically added",
+                "info": "The Content-Length header was added to indicate to the server the size of the request body that is added to this request. Server uses this value to parse the request body accurately.\n\nYou can remove the header or enter a new one with a different value.",
+                "allowedToToggle": true,
+                "disableEdit": true,
+                "previewSettingsLink": "Go to body",
+                "key": "Content-Length",
+                "value": "<calculated when request is sent>",
+                "system": true,
+                "type": "text"
+              },
+              {
+                "name": "host",
+                "sortOrder": 6,
+                "infoTitle": "We recommend using this header",
+                "info": "The Host header is added to identify the domain name for which a request is being sent to the server. This header is implicitly sent by every HTTP client.\n\nYou can remove the header or enter a new one with a different value. It is most likely that without this header, your request will return an HTTP 400 error.",
+                "allowedToToggle": true,
+                "disableEdit": true,
+                "key": "Host",
+                "value": "<calculated when request is sent>",
+                "system": true,
+                "type": "text"
+              },
+              {
+                "name": "user-agent",
+                "sortOrder": 7,
+                "infoTitle": "We recommend using this header",
+                "info": "The User-Agent header is added to help the server identify Postman as the HTTP requesting application or client.\n\nIt is recommended that this header be sent, but you can remove the header or enter a new one with a different value.",
+                "allowedToToggle": true,
+                "disableEdit": true,
+                "key": "User-Agent",
+                "value": "PostmanRuntime/7.39.1",
+                "system": true,
+                "type": "text"
+              },
+              {
+                "name": "accept",
+                "sortOrder": 8,
+                "infoTitle": "We recommend using this header",
+                "info": "The \"Accept: */*\" header is added to tell the server that Postman can understand and process all forms of response content types.\n\nIt is recommended that this header be sent, but you can remove the header or enter a new one with a different value.",
+                "allowedToToggle": true,
+                "disableEdit": true,
+                "key": "Accept",
+                "value": "*/*",
+                "system": true,
+                "type": "text"
+              },
+              {
+                "name": "accept-encoding",
+                "sortOrder": 9,
+                "infoTitle": "We recommend using this header",
+                "info": "The Accept-Encoding header is added to indicate to the server that Postman HTTP client supports a defined list of content-encoding or compression algorithms as response.\n\nYou can remove the header or enter a new one with a different value. Doing that may not accurately render the response within the app.",
+                "allowedToToggle": true,
+                "disableEdit": true,
+                "key": "Accept-Encoding",
+                "value": "gzip, deflate, br",
+                "system": true,
+                "type": "text"
+              },
+              {
+                "name": "connection",
+                "sortOrder": 10,
+                "infoTitle": "We recommend using this header",
+                "info": "Postman added the Connection header to indicate the server to keep the underlying network connection open once the current response is received. This allows Postman to reuse the same connection for faster response times in subsequent requests to the same server.\n\nYou can remove this header or enter a new one with a different value, such as `Connection: Close` to control this behaviour.",
+                "allowedToToggle": true,
+                "disableEdit": true,
+                "key": "Connection",
+                "value": "keep-alive",
+                "system": true,
+                "type": "text"
+              },
+              {
+                "key": "x-admin-setup-key",
+                "value": "BookLeafSetup_ChangeThis_2026",
+                "type": "text",
+                "id": 0
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \r\n  \"name\": \"Pranita Aeer\",\r\n  \"email\": \"aeerpranita@gmail.com\",\r\n  \"password\": \"TestPass123\"\r\n  \r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:5000/api/auth/register",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "auth",
+                "register"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "ADMIN_REGISTER",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "name": "cache-control",
+                "sortOrder": 2,
+                "infoTitle": "We recommend using this header",
+                "info": "Postman added \"Cache-Control: no-cache\" as a precautionary measure to prevent the server from returning stale response when one makes repeated requests.\n\nYou can remove this header in the app settings or enter a new one with a different value.",
+                "allowedToToggle": false,
+                "disableEdit": true,
+                "previewSettingsLink": "Go to settings",
+                "key": "Cache-Control",
+                "value": "no-cache",
+                "system": true,
+                "type": "text"
+              },
+              {
+                "name": "postman-token",
+                "sortOrder": 3,
+                "infoTitle": "We recommend using this header",
+                "info": "The Postman-Token header appends a random UUID to every outgoing request. Postman adds this header for API developers to better debug requests sent and to ensure separate requests appear distinct to the receiving server.\n\nYou can remove this header in the app settings.",
+                "allowedToToggle": false,
+                "disableEdit": true,
+                "previewSettingsLink": "Go to settings",
+                "key": "Postman-Token",
+                "value": "<calculated when request is sent>",
+                "system": true,
+                "type": "text"
+              },
+              {
+                "name": "content-type",
+                "sortOrder": 4,
+                "infoTitle": "This header was automatically added",
+                "info": "The Content-Type header is added to help the server identify the media type of the request body that is present in this request.\n\nUse the request body tab to control the value or to remove this header.",
+                "allowedToToggle": true,
+                "disableEdit": true,
+                "previewSettingsLink": "Go to body",
+                "key": "Content-Type",
+                "value": "application/json",
+                "system": true,
+                "type": "text"
+              },
+              {
+                "name": "content-length",
+                "sortOrder": 5,
+                "infoTitle": "This header was automatically added",
+                "info": "The Content-Length header was added to indicate to the server the size of the request body that is added to this request. Server uses this value to parse the request body accurately.\n\nYou can remove the header or enter a new one with a different value.",
+                "allowedToToggle": true,
+                "disableEdit": true,
+                "previewSettingsLink": "Go to body",
+                "key": "Content-Length",
+                "value": "<calculated when request is sent>",
+                "system": true,
+                "type": "text"
+              },
+              {
+                "name": "host",
+                "sortOrder": 6,
+                "infoTitle": "We recommend using this header",
+                "info": "The Host header is added to identify the domain name for which a request is being sent to the server. This header is implicitly sent by every HTTP client.\n\nYou can remove the header or enter a new one with a different value. It is most likely that without this header, your request will return an HTTP 400 error.",
+                "allowedToToggle": true,
+                "disableEdit": true,
+                "key": "Host",
+                "value": "<calculated when request is sent>",
+                "system": true,
+                "type": "text"
+              },
+              {
+                "name": "user-agent",
+                "sortOrder": 7,
+                "infoTitle": "We recommend using this header",
+                "info": "The User-Agent header is added to help the server identify Postman as the HTTP requesting application or client.\n\nIt is recommended that this header be sent, but you can remove the header or enter a new one with a different value.",
+                "allowedToToggle": true,
+                "disableEdit": true,
+                "key": "User-Agent",
+                "value": "PostmanRuntime/7.39.1",
+                "system": true,
+                "type": "text"
+              },
+              {
+                "name": "accept",
+                "sortOrder": 8,
+                "infoTitle": "We recommend using this header",
+                "info": "The \"Accept: */*\" header is added to tell the server that Postman can understand and process all forms of response content types.\n\nIt is recommended that this header be sent, but you can remove the header or enter a new one with a different value.",
+                "allowedToToggle": true,
+                "disableEdit": true,
+                "key": "Accept",
+                "value": "*/*",
+                "system": true,
+                "type": "text"
+              },
+              {
+                "name": "accept-encoding",
+                "sortOrder": 9,
+                "infoTitle": "We recommend using this header",
+                "info": "The Accept-Encoding header is added to indicate to the server that Postman HTTP client supports a defined list of content-encoding or compression algorithms as response.\n\nYou can remove the header or enter a new one with a different value. Doing that may not accurately render the response within the app.",
+                "allowedToToggle": true,
+                "disableEdit": true,
+                "key": "Accept-Encoding",
+                "value": "gzip, deflate, br",
+                "system": true,
+                "type": "text"
+              },
+              {
+                "name": "connection",
+                "sortOrder": 10,
+                "infoTitle": "We recommend using this header",
+                "info": "Postman added the Connection header to indicate the server to keep the underlying network connection open once the current response is received. This allows Postman to reuse the same connection for faster response times in subsequent requests to the same server.\n\nYou can remove this header or enter a new one with a different value, such as `Connection: Close` to control this behaviour.",
+                "allowedToToggle": true,
+                "disableEdit": true,
+                "key": "Connection",
+                "value": "keep-alive",
+                "system": true,
+                "type": "text"
+              },
+              {
+                "key": "x-admin-setup-key",
+                "value": "BookLeafSetup_ChangeThis_2026",
+                "type": "text",
+                "id": 0
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "\r\n{\r\n  \"name\": \"BookLeaf Admin\",\r\n  \"email\": \"admin@example.com\",\r\n  \"password\": \"admin@123\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:5000/api/auth/register-admin",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "auth",
+                "register-admin"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "MY_INFO",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjZhZDFjZDk1MTRmMTE2ZjRjMGY3ZjdiZSIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc5MjIxOTgxNywiZXhwIjoxNzkyMzA2MjE3fQ.0CKiRgCXbDQCOoRW9HFxDsWhapvJEI7hm9w4E67pzqs",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "name": "cache-control",
+                "sortOrder": 2,
+                "infoTitle": "We recommend using this header",
+                "info": "Postman added \"Cache-Control: no-cache\" as a precautionary measure to prevent the server from returning stale response when one makes repeated requests.\n\nYou can remove this header in the app settings or enter a new one with a different value.",
+                "allowedToToggle": false,
+                "disableEdit": true,
+                "previewSettingsLink": "Go to settings",
+                "key": "Cache-Control",
+                "value": "no-cache",
+                "system": true,
+                "type": "text"
+              },
+              {
+                "name": "postman-token",
+                "sortOrder": 3,
+                "infoTitle": "We recommend using this header",
+                "info": "The Postman-Token header appends a random UUID to every outgoing request. Postman adds this header for API developers to better debug requests sent and to ensure separate requests appear distinct to the receiving server.\n\nYou can remove this header in the app settings.",
+                "allowedToToggle": false,
+                "disableEdit": true,
+                "previewSettingsLink": "Go to settings",
+                "key": "Postman-Token",
+                "value": "<calculated when request is sent>",
+                "system": true,
+                "type": "text"
+              },
+              {
+                "name": "content-type",
+                "sortOrder": 4,
+                "infoTitle": "This header was automatically added",
+                "info": "The Content-Type header is added to help the server identify the media type of the request body that is present in this request.\n\nUse the request body tab to control the value or to remove this header.",
+                "allowedToToggle": true,
+                "disableEdit": true,
+                "previewSettingsLink": "Go to body",
+                "key": "Content-Type",
+                "value": "application/json",
+                "system": true,
+                "type": "text"
+              },
+              {
+                "name": "content-length",
+                "sortOrder": 5,
+                "infoTitle": "This header was automatically added",
+                "info": "The Content-Length header was added to indicate to the server the size of the request body that is added to this request. Server uses this value to parse the request body accurately.\n\nYou can remove the header or enter a new one with a different value.",
+                "allowedToToggle": true,
+                "disableEdit": true,
+                "previewSettingsLink": "Go to body",
+                "key": "Content-Length",
+                "value": "<calculated when request is sent>",
+                "system": true,
+                "type": "text"
+              },
+              {
+                "name": "host",
+                "sortOrder": 6,
+                "infoTitle": "We recommend using this header",
+                "info": "The Host header is added to identify the domain name for which a request is being sent to the server. This header is implicitly sent by every HTTP client.\n\nYou can remove the header or enter a new one with a different value. It is most likely that without this header, your request will return an HTTP 400 error.",
+                "allowedToToggle": true,
+                "disableEdit": true,
+                "key": "Host",
+                "value": "<calculated when request is sent>",
+                "system": true,
+                "type": "text"
+              },
+              {
+                "name": "user-agent",
+                "sortOrder": 7,
+                "infoTitle": "We recommend using this header",
+                "info": "The User-Agent header is added to help the server identify Postman as the HTTP requesting application or client.\n\nIt is recommended that this header be sent, but you can remove the header or enter a new one with a different value.",
+                "allowedToToggle": true,
+                "disableEdit": true,
+                "key": "User-Agent",
+                "value": "PostmanRuntime/7.39.1",
+                "system": true,
+                "type": "text"
+              },
+              {
+                "name": "accept",
+                "sortOrder": 8,
+                "infoTitle": "We recommend using this header",
+                "info": "The \"Accept: */*\" header is added to tell the server that Postman can understand and process all forms of response content types.\n\nIt is recommended that this header be sent, but you can remove the header or enter a new one with a different value.",
+                "allowedToToggle": true,
+                "disableEdit": true,
+                "key": "Accept",
+                "value": "*/*",
+                "system": true,
+                "type": "text"
+              },
+              {
+                "name": "accept-encoding",
+                "sortOrder": 9,
+                "infoTitle": "We recommend using this header",
+                "info": "The Accept-Encoding header is added to indicate to the server that Postman HTTP client supports a defined list of content-encoding or compression algorithms as response.\n\nYou can remove the header or enter a new one with a different value. Doing that may not accurately render the response within the app.",
+                "allowedToToggle": true,
+                "disableEdit": true,
+                "key": "Accept-Encoding",
+                "value": "gzip, deflate, br",
+                "system": true,
+                "type": "text"
+              },
+              {
+                "name": "connection",
+                "sortOrder": 10,
+                "infoTitle": "We recommend using this header",
+                "info": "Postman added the Connection header to indicate the server to keep the underlying network connection open once the current response is received. This allows Postman to reuse the same connection for faster response times in subsequent requests to the same server.\n\nYou can remove this header or enter a new one with a different value, such as `Connection: Close` to control this behaviour.",
+                "allowedToToggle": true,
+                "disableEdit": true,
+                "key": "Connection",
+                "value": "keep-alive",
+                "system": true,
+                "type": "text"
+              },
+              {
+                "key": "x-admin-setup-key",
+                "value": "BookLeafSetup_ChangeThis_2026",
+                "type": "text",
+                "id": 0
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:5000/api/auth/me",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "auth",
+                "me"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Book",
+      "item": [
+        {
+          "name": "GET_MY_BOOKS",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjZhZDBhOGZhYzQ2NDA1NWFkOGQ0YmJkMyIsInJvbGUiOiJhdXRob3IiLCJpYXQiOjE3OTIyNTc1ODIsImV4cCI6MTc5MjM0Mzk4Mn0.GxuiHcRzTL_AXe-Mq9x9UbL4JzxDoNV-4_8wj9HXBhs",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:5000/api/book/get-books",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "book",
+                "get-books"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET_BOOK_BYID",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjZhZDBhOGZhYzQ2NDA1NWFkOGQ0YmJkMyIsInJvbGUiOiJhdXRob3IiLCJpYXQiOjE3OTIyNTc1ODIsImV4cCI6MTc5MjM0Mzk4Mn0.GxuiHcRzTL_AXe-Mq9x9UbL4JzxDoNV-4_8wj9HXBhs",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:5000/api/book/get-book/6ad203e9a228a0f7cbcdb23a",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "book",
+                "get-book",
+                "6ad203e9a228a0f7cbcdb23a"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Ticket",
+      "item": [
+        {
+          "name": "CREATE_TICKET",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjZhZDBhOGZhYzQ2NDA1NWFkOGQ0YmJkMyIsInJvbGUiOiJhdXRob3IiLCJpYXQiOjE3OTIyNTc1ODIsImV4cCI6MTc5MjM0Mzk4Mn0.GxuiHcRzTL_AXe-Mq9x9UbL4JzxDoNV-4_8wj9HXBhs",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"bookId\": \"BK019\",\r\n  \"subject\": \"Royalty payment not received\",\r\n  \"description\": \"My book has sold copies, but I have not received my royalty payment. Please check my payment status.\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:5000/api/ticket/",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "ticket",
+                ""
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET_MY_TICKTES",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjZhZDBhOGZhYzQ2NDA1NWFkOGQ0YmJkMyIsInJvbGUiOiJhdXRob3IiLCJpYXQiOjE3OTIyNTc1ODIsImV4cCI6MTc5MjM0Mzk4Mn0.GxuiHcRzTL_AXe-Mq9x9UbL4JzxDoNV-4_8wj9HXBhs",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:5000/api/ticket/my-tickets",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "ticket",
+                "my-tickets"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET_TICKET_BY_ID",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjZhZDFlYTRlYTY2MzQyN2VkODhiYmM2NiIsInJvbGUiOiJhdXRob3IiLCJpYXQiOjE3OTIyNjEyMjUsImV4cCI6MTc5MjM0NzYyNX0.5165JDnB1_uhoH7uU8yU1rfQgae55UHn9-83ay--MwE",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:5000/api/ticket/6ad3b2055dc17729686d342d",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "ticket",
+                "6ad3b2055dc17729686d342d"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Admin",
+      "item": [
+        {
+          "name": "GET_ALL_TICKETS",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjZhZDFjZDk1MTRmMTE2ZjRjMGY3ZjdiZSIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc5MjI2NjY5MywiZXhwIjoxNzkyMzUzMDkzfQ.cpV3aKy6AIDkXixWM0pIgnik0OVM0t22iWLcEBC8_vQ",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:5000/api/admin/tickets",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "admin",
+                "tickets"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET_TICKET_BY_ID",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjZhZDFjZDk1MTRmMTE2ZjRjMGY3ZjdiZSIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc5MjI2NjY5MywiZXhwIjoxNzkyMzUzMDkzfQ.cpV3aKy6AIDkXixWM0pIgnik0OVM0t22iWLcEBC8_vQ",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:5000/api/admin/tickets/6ad1225ed2214b4525eef5be",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "admin",
+                "tickets",
+                "6ad1225ed2214b4525eef5be"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "UPDATE_TICKET",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjZhZDFjZDk1MTRmMTE2ZjRjMGY3ZjdiZSIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc5MjI2NjY5MywiZXhwIjoxNzkyMzUzMDkzfQ.cpV3aKy6AIDkXixWM0pIgnik0OVM0t22iWLcEBC8_vQ",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"status\": \"Resolved\",\r\n  \"priority\": \"Critical\",\r\n  \"category\": \"ISBN & Metadata Issues\",\r\n  \"assignedAdmin\":\"6ad10efb88fd1e3a587b453d\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:5000/api/admin/tickets/6ad1225ed2214b4525eef5be",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "admin",
+                "tickets",
+                "6ad1225ed2214b4525eef5be"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "ADD_INTERNAL_NOTE",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjZhZDFjZDk1MTRmMTE2ZjRjMGY3ZjdiZSIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc5MjI2NjY5MywiZXhwIjoxNzkyMzUzMDkzfQ.cpV3aKy6AIDkXixWM0pIgnik0OVM0t22iWLcEBC8_vQ",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"note\": \"Checked the author's royalty records. Need to verify the latest quarterly payout before replying.\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:5000/api/admin/tickets/6ad1225ed2214b4525eef5be/notes",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "admin",
+                "tickets",
+                "6ad1225ed2214b4525eef5be",
+                "notes"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "SEND_TICKET_REPLY",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjZhZDFjZDk1MTRmMTE2ZjRjMGY3ZjdiZSIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc5MjI2NjY5MywiZXhwIjoxNzkyMzUzMDkzfQ.cpV3aKy6AIDkXixWM0pIgnik0OVM0t22iWLcEBC8_vQ",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"message\": \"Hello Kavita, we are reviewing your royalty records for the latest quarter. We will share an update after verification. Thank you for your patience.\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:5000/api/admin/tickets/6ad1225ed2214b4525eef5be/reply",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "admin",
+                "tickets",
+                "6ad1225ed2214b4525eef5be",
+                "reply"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "AI_DRAFT_RESPONSE",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjZhZDFjZDk1MTRmMTE2ZjRjMGY3ZjdiZSIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc5MjI2NjY5MywiZXhwIjoxNzkyMzUzMDkzfQ.cpV3aKy6AIDkXixWM0pIgnik0OVM0t22iWLcEBC8_vQ",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"message\": \"Hello Kavita, we are reviewing your royalty records for the latest quarter. We will share an update after verification. Thank you for your patience.\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:5000/api/admin/tickets/6ad1225ed2214b4525eef5be/ai-draft",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "5000",
+              "path": [
+                "api",
+                "admin",
+                "tickets",
+                "6ad1225ed2214b4525eef5be",
+                "ai-draft"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

@@ -203,7 +203,7 @@ Both endpoints use the `authenticate` middleware to protect access to book data.
 
 A Postman collection can be used to test the authentication, author ticket, and admin workflows.
 
-**Collection file:** `BookLeaf_Postman_Collection.json`
+**Collection file:** `BookLeaf.postman_collection.json`
 
 Ensure this file exists in the repository before linking it here.
 
@@ -228,7 +228,7 @@ bookleaf-support-portal/
 │       │   └── aiService.ts
 │       │   └── uploadthing.ts
 │       └── server.ts
-├── BookLeaf_Postman_Collection.json
+├── BookLeaf.postman_collection.json
 └── README.md
 ```
 
@@ -247,7 +247,7 @@ This is a representative structure. Adjust directory names to match the actual r
 ### 1. Clone the Repository
 
 ```bash
-git clone <YOUR_PRIVATE_REPOSITORY_URL>
+git clone https://github.com/pranitaaeer/bookleaf-support-portal.git
 cd bookleaf-support-portal
 ```
 
