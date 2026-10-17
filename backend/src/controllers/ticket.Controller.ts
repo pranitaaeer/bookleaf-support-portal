@@ -230,10 +230,83 @@ export async function getMyTickets(req: Request, res: Response) {
 }
 
 // GET /api/tickets/:ticketId
+// export async function getMyTicketById(req: Request, res: Response) {
+//   try {
+//     const authorId = req.user?.id;
+//     const { ticketId } = req.params;
+
+//     if (!authorId) {
+//       return res.status(401).json({
+//         success: false,
+//         message: "Authentication required.",
+//       });
+//     }
+
+//     if (!mongoose.isValidObjectId(ticketId)) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "Invalid ticket ID.",
+//       });
+//     }
+
+//     // Author can access only their own ticket.
+//     const ticket = await Ticket.findOne({
+//       _id: ticketId,
+//       author: authorId,
+//     })
+//       .populate("book", "title isbn")
+//       .lean();
+
+//     if (!ticket) {
+//       return res.status(404).json({
+//         success: false,
+//         message: "Ticket not found.",
+//       });
+//     }
+
+//     // Never expose internal admin notes/messages to authors.
+//     const messages = await TicketMessage.find({
+//       ticket: ticketId,
+//       isInternal: false,
+//     })
+//       .select("senderRole message createdAt editedAt")
+//       .sort({ createdAt: 1 })
+//       .lean();
+
+//     return res.status(200).json({
+//       success: true,
+//       data: {
+//         ...ticket,
+//         messages,
+//       },
+//     });
+//   } catch (error) {
+//     console.error("Get ticket details error:", error);
+
+//     return res.status(500).json({
+//       success: false,
+//       message: "Unable to fetch ticket details right now.",
+//     });
+//   }
+// }
+
+// GET /api/tickets/:ticketId
+
 export async function getMyTicketById(req: Request, res: Response) {
   try {
     const authorId = req.user?.id;
-    const { ticketId } = req.params;
+    const ticketId = req.params.ticketId;
+ 
+     console.log("🔍 Checking Ticket ID:", ticketId);
+    console.log("🔍 Logged in Author ID:", authorId);
+
+    
+    // 👇 YE BHI ADD KAREIN
+    const directTicket = await Ticket.findById(ticketId);
+    console.log("🔍 Direct Ticket found in DB?:", !!directTicket);
+    if (directTicket) {
+       console.log("🔍 Ticket's actual Author in DB:", directTicket.author);
+    }
 
     if (!authorId) {
       return res.status(401).json({
@@ -242,7 +315,8 @@ export async function getMyTicketById(req: Request, res: Response) {
       });
     }
 
-    if (!mongoose.isValidObjectId(ticketId)) {
+    // Check valid ObjectId
+    if (typeof ticketId !== "string" || !mongoose.Types.ObjectId.isValid(ticketId)) {
       return res.status(400).json({
         success: false,
         message: "Invalid ticket ID.",
@@ -250,9 +324,10 @@ export async function getMyTicketById(req: Request, res: Response) {
     }
 
     // Author can access only their own ticket.
+    // Hum explicitly ObjectId use kar rahe hain taaki matching fail na ho.
     const ticket = await Ticket.findOne({
-      _id: ticketId,
-      author: authorId,
+      _id: new mongoose.Types.ObjectId(ticketId),
+      author: new mongoose.Types.ObjectId(authorId),
     })
       .populate("book", "title isbn")
       .lean();
@@ -260,7 +335,7 @@ export async function getMyTicketById(req: Request, res: Response) {
     if (!ticket) {
       return res.status(404).json({
         success: false,
-        message: "Ticket not found.",
+        message: "Ticket not found or you don't have access.",
       });
     }
 
