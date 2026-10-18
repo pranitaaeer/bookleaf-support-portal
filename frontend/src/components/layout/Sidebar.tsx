@@ -10,6 +10,7 @@ import {
   ClipboardList,
 } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import api from "../../services/api";
 
 interface SidebarProps {
   open: boolean;
@@ -56,25 +57,25 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
 
   const isActive = (path: string) => location.pathname === path;
 
-  const handleLogout = () => {
-    // Clear authentication data from both storage locations
-    const authKeys = [
-      "token",
-      "accessToken",
-      "authToken",
-      "user",
-      "isLoggedIn",
-    ];
+ 
 
-    authKeys.forEach((key) => {
-      localStorage.removeItem(key);
-      sessionStorage.removeItem(key);
-    });
+  const handleLogout = async () => {
+  try {
+    await api.post("/auth/logout");
+  } catch (error) {
+    console.error("Logout API failed:", error);
+  } finally {
+    localStorage.removeItem("token");
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("authToken");
+    localStorage.removeItem("user");
+    localStorage.removeItem("isLoggedIn");
 
-    // Redirect to login and prevent returning to the dashboard via history
+    sessionStorage.clear();
+
     navigate("/login", { replace: true });
+  }
   };
-
   return (
     <>
       {open && (

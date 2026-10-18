@@ -16,6 +16,8 @@ import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminTickets from "./pages/admin/AdminTickets";
 import AdminTicketDetails from "./pages/admin/AdminTicketDetails";
 
+import ProtectedRoute from "./components/ProtectedRoute";
+
 import "./styles/dashboard.scss";
 import "./styles/portal-pages.scss";
 
@@ -23,25 +25,95 @@ export default function App() {
   return (
     <>
       <Routes>
-        <Route path="/" element={<Navigate to="/login" replace />} />
+        <Route
+          path="/"
+          element={<Navigate to="/login" replace />}
+        />
 
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
 
-      <Route path="/author/dashboard" element={<AuthorDashboard />} />
-      <Route path="/author/books" element={<MyBooks />} />
-      <Route path="/author/tickets/new" element={<CreateTicket />} />
-      <Route path="/author/tickets" element={<MyTickets />} />
-      <Route path="/author/tickets/:ticketId" element={<AuthorTicketDetails />} />
+        {/* Author protected routes */}
+        <Route
+          path="/author/dashboard"
+          element={
+            <ProtectedRoute allowedRole="author">
+              <AuthorDashboard />
+            </ProtectedRoute>
+          }
+        />
 
-      <Route path="/admin/dashboard" element={<AdminDashboard />} />
-      <Route path="/admin/tickets" element={<AdminTickets />} />
-      <Route path="/admin/tickets/:ticketId" element={<AdminTicketDetails />} />
+        <Route
+          path="/author/books"
+          element={
+            <ProtectedRoute allowedRole="author">
+              <MyBooks />
+            </ProtectedRoute>
+          }
+        />
 
-      <Route path="*" element={<Navigate to="/login" replace />} />
-    </Routes>
+        <Route
+          path="/author/tickets/new"
+          element={
+            <ProtectedRoute allowedRole="author">
+              <CreateTicket />
+            </ProtectedRoute>
+          }
+        />
 
-    <ToastContainer
+        <Route
+          path="/author/tickets"
+          element={
+            <ProtectedRoute allowedRole="author">
+              <MyTickets />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/author/tickets/:ticketId"
+          element={
+            <ProtectedRoute allowedRole="author">
+              <AuthorTicketDetails />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Admin protected routes */}
+        <Route
+          path="/admin/dashboard"
+          element={
+            <ProtectedRoute allowedRole="admin">
+              <AdminDashboard />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/admin/tickets"
+          element={
+            <ProtectedRoute allowedRole="admin">
+              <AdminTickets />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/admin/tickets/:ticketId"
+          element={
+            <ProtectedRoute allowedRole="admin">
+              <AdminTicketDetails />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="*"
+          element={<Navigate to="/login" replace />}
+        />
+      </Routes>
+
+      <ToastContainer
         position="top-right"
         autoClose={3000}
         newestOnTop
