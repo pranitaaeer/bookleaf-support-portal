@@ -7,12 +7,26 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 ConnectDB()
-app.use(cors({
-  origin: process.env.VITE_FRONTEND_URL || "http://localhost:5173",
-  methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"],
-  credentials: true,
-}));
+
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://bookleaf-support-portal-sigma.vercel.app",
+];
+
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error(`CORS blocked for origin: ${origin}`));
+      }
+    },
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true,
+  })
+);
 app.use(express.json());
 
 app.get("/api/health", (_req: Request, res: Response) => {
