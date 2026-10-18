@@ -302,6 +302,8 @@ LLM_MODEL=openai/gpt-oss-20b
 SEED_AUTHOR_PASSWORD=your_seed_data_password
 ADMIN_SETUP_KEY=your_admin_setup_key
 UPLOADTHING_TOKEN=your_admin_setup_key
+VITE_FRONTEND_URL=http://localhost:5173
+
 ```
 
 ### Frontend `.env`
