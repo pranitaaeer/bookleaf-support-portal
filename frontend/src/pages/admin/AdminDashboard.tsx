@@ -115,17 +115,20 @@ export default function AdminDashboard() {
     (t) => t.priority === "Critical" || t.priority === "High"
   ).length;
 
-  const today = new Date();
-  const resolvedTodayCount = tickets.filter((t) => {
-    if (t.status !== "Resolved") return false;
+  // const today = new Date();
+  // const resolvedTodayCount = tickets.filter((t) => {
+  //   if (t.status !== "Resolved") return false;
 
-    const created = new Date(t.createdAt);
-    return (
-      created.getFullYear() === today.getFullYear() &&
-      created.getMonth() === today.getMonth() &&
-      created.getDate() === today.getDate()
-    );
-  }).length;
+  //   const created = new Date(t.createdAt);
+  //   return (
+  //     created.getFullYear() === today.getFullYear() &&
+  //     created.getMonth() === today.getMonth() &&
+  //     created.getDate() === today.getDate()
+  //   );
+  // }).length;
+  const resolvedCount = tickets.filter(
+  (ticket) => ticket.status === "Resolved"
+).length;
 
   const stats: Stat[] = [
     {
@@ -161,12 +164,12 @@ export default function AdminDashboard() {
     },
     {
       label: "Resolved Today",
-      value: String(resolvedTodayCount).padStart(2, "0"),
+      value: String(resolvedCount).padStart(2, "0"),
       sub: "Resolved today",
       icon: CircleCheck,
       progress: 0,
       tone: "purple",
-      caption: `${resolvedTodayCount} resolved today`,
+      caption: `${resolvedCount} resolved today`,
     },
   ];
 

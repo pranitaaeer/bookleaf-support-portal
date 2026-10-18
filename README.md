@@ -303,7 +303,7 @@ SEED_AUTHOR_PASSWORD=your_seed_data_password
 ADMIN_SETUP_KEY=your_admin_setup_key
 UPLOADTHING_TOKEN=your_admin_setup_key
 VITE_FRONTEND_URL=http://localhost:5173
-
+PORT=5000
 ```
 
 ### Frontend `.env`
@@ -314,7 +314,7 @@ VITE_API_URL=http://localhost:5000/api
 
 ## 🌐 Demo Access
 
-- **Live Application:** `<ADD_DEPLOYED_APPLICATION_URL>`
+- **Live Application:** `https://bookleaf-support-portal-sigma.vercel.app/`
 
 
 ### Test Credentials

@@ -11,6 +11,7 @@ ConnectDB()
 const allowedOrigins = [
   "http://localhost:5173",
   "https://bookleaf-support-portal-sigma.vercel.app",
+  "https://bookleaf-support-portal-git-main-pranitaaeers-projects.vercel.app",
 ];
 
 app.use(
