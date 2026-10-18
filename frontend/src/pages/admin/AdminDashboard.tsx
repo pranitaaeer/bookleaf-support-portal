@@ -162,15 +162,17 @@ export default function AdminDashboard() {
       tone: "red",
       caption: `${criticalHighCount} high-priority tickets`,
     },
-    {
-      label: "Resolved Today",
-      value: String(resolvedCount).padStart(2, "0"),
-      sub: "Resolved today",
-      icon: CircleCheck,
-      progress: 0,
-      tone: "purple",
-      caption: `${resolvedCount} resolved today`,
-    },
+      {
+    label: "Resolved Tickets",
+    value: String(resolvedCount).padStart(2, "0"),
+    sub: "Total resolved tickets",
+    icon: CircleCheck,
+    progress: tickets.length
+      ? (resolvedCount / tickets.length) * 100
+      : 0,
+    tone: "purple",
+    caption: `${resolvedCount} tickets resolved`,
+  },
   ];
 
   const urgentTickets = tickets
